@@ -11,16 +11,19 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('member_id')->constrained('members')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('institution_id')->constrained('institutions')->cascadeOnUpdate()->restrictOnDelete();
+
             $table->foreignId('asset_id')->constrained('assets')->cascadeOnUpdate()->restrictOnDelete();
+            // path atau nama file foto
+            $table->string('photo')->nullable();
 
             // tanggal detail sampai jam (mulai & selesai)
-            $table->dateTime('start_at');   // contoh: 2025-07-23 08:00:00
-            $table->dateTime('end_at');     // contoh: 2025-07-23 17:00:00
+            $table->dateTime('start_at')->nullable();   // contoh: 2025-07-23 08:00:00
+            $table->dateTime('end_at')->nullable();     // contoh: 2025-07-23 17:00:00
 
             $table->enum('status', ['waiting', 'process', 'finish', 'cancel'])->default('waiting');
 
             $table->timestamps();
-            $table->softDeletes();
+            // $table->softDeletes();
 
             // index tambahan bila perlu
             $table->index(['start_at', 'end_at']);
