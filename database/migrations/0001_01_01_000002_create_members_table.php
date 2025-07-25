@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
-            // $table->foreignId('institution_id')->constrained('institutions')->onDelete('cascade')->nullable();
             $table->timestamps();
         });
     }

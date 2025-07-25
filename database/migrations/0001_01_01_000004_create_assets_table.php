@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
-            // hubungan ke user yang membuat aset
             $table->foreignId('user_id')
                   ->constrained('users')
                   ->cascadeOnUpdate()
