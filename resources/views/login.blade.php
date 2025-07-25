@@ -25,11 +25,12 @@
                 <div class="side-img"></div>
             </div>
             <div class="col-md-6 d-flex align-items-center justify-content-center text-center">
-                <form action="{{ url('/') }}" method="get" style="background: rgba(255,255,255,0.9); max-width: 400px; width: 100%;">
+                <form action="{{ route('login') }}" method="POST" style="background: rgba(255,255,255,0.9); max-width: 400px; width: 100%;">
+                    @csrf
                     <span class="fs-1 text-success fw-bold">SIPASTI</span>
                     <div class="form-floating mb-2">
-                        <input class="form-control form-control-lg rounded-0" type="text" id="username" name="username" placeholder="User name">
-                        <label for="username">User name</label>
+                        <input class="form-control form-control-lg rounded-0" type="text" id="phone" name="phone" placeholder="User name">
+                        <label for="phone">User name</label>
                     </div>
                     <div class="form-floating mb-2">
                         <input class="form-control form-control-lg rounded-0" type="password" id="password" name="password" placeholder="Password">
