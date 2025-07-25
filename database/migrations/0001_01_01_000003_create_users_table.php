@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('phone')->unique();
             $table->string('password');
             $table->enum('role', ['super_admin', 'admin', 'user'])->default('user');
-            $table->foreignId('asset_id')->nullable()->constrained('assets')->onDelete('set null')->nullable();
             $table->foreignId('institution_id')->nullable()->constrained('institutions')->onDelete('set null')->nullable();
             $table->timestamps();
         });

@@ -35,6 +35,7 @@ class AssetSeeder extends Seeder
                 [
                     'description' => $item['desc'],
                     'image'       => $item['img'],
+                    'user_id'     => 1,
                 ]
             );
         }
