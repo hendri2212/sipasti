@@ -5,65 +5,47 @@ namespace App\Http\Controllers;
 use App\Models\RentalAsset;
 use App\Models\Institution;
 use App\Models\Asset;
+use App\Models\Member;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreRentalRequest;
 
-class RentalController extends Controller
-{
+class RentalController extends Controller {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
+    public function index() {
+        $rentalAssets = RentalAsset::with(['institution', 'asset', 'member'])->orderBy('created_at', 'desc')->get();
+        return view('rent.data', ['rentalAssets' => $rentalAssets]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
+    public function create() {
         $institutions = Institution::orderBy('name')->get(['id','name']);
         $assets       = Asset::orderBy('name')->get(['id','name']);
 
         return view('rent.form', compact('institutions','assets'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(Request $request)
-    public function store(StoreRentalRequest $request)
-    {
+    public function store(StoreRentalRequest $request) {
         $path = $request->file('photo')->store('rent-photos','public');
 
-        // Simpan ke tabel members
         $member = Member::create([
             'name'           => $request->name,
             'phone'          => $request->phone,
             'address'        => $request->address,
-            'institution_id' => $request->institution_id,
         ]);
 
-        // Simpan ke tabel rental_assets
         RentalAsset::create([
-            'member_id'   => $member->id,
-            'asset_id'    => $request->asset_id,
-            'start_at'    => now(),   // sesuaikan input tanggal jika ada
-            'end_at'      => now()->addHours(2),
-            // 'status'      => 'waiting',
-            // simpan path photo jika ingin: 'photo' => $path,
+            'institution_id'    => $request->institution_id,
+            'member_id'         => $member->id,
+            'asset_id'          => $request->asset_id,
+            'photo' => $path,
         ]);
 
         return redirect()->route('rent.create')->with('success', 'Pengajuan peminjaman terkirim!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(RentalAsset $rentalAsset)
-    {
-        //
+    public function show(RentalAsset $rentalAsset) {
+        return view('rent.detail', ['rental' => $rentalAsset]);
     }
 
     /**
@@ -74,12 +56,23 @@ class RentalController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, RentalAsset $rentalAsset)
-    {
-        //
+    public function update(Request $request, RentalAsset $rentalAsset) {
+        $validated = $request->validate([
+            'institution_id' => 'required|exists:institutions,id',
+            'asset_id' => 'required|exists:assets,id',
+            // 'status' => 'required|string', // Optionally remove or ignore this line
+            // add other fields as needed
+        ]);
+        // Set status to process regardless of input
+        $validated['status'] = 'process';
+        $rentalAsset->update($validated);
+        return redirect()->route('rent.show', $rentalAsset)->with('success', 'Rental updated and status set to process.');
+    }
+
+    public function approve(RentalAsset $rentalAsset) {
+        $rentalAsset->update(['status'=>'process']);
+        return redirect()->route('rent.show', $rentalAsset)
+                        ->with('success','Peminjaman berhasil disetujui.');
     }
 
     /**

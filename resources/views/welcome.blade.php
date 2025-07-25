@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 
-<body>
+<body class="bg-body-secondary">
     <div class="container py-3">
         <header class="mb-4">
             <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm py-3">

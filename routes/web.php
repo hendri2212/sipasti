@@ -2,13 +2,25 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RentalController;
+use App\Http\Controllers\Auth\LoginController;
 
-Route::get('/', function () {
-    return view('rent.data');
+// Hanya guest yang bisa ke login
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'show'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
 });
 
-Route::get('/login', function () {
-    return view('login');
+// Logout
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+
+// Semua route rent butuh autentikasi
+Route::middleware('auth')->group(function () {
+    Route::get('/', [RentalController::class, 'index'])->name('rent.index');
+    Route::get('/rent/form', [RentalController::class, 'create'])->name('rent.create');
+    Route::post('/rent', [RentalController::class, 'store'])->name('rent.store');
+    Route::get('/rent/{rentalAsset}', [RentalController::class, 'show'])->name('rent.show');
+    Route::get('/rent/{rentalAsset}/approve', [RentalController::class, 'approve'])->name('rent.approve');
 });
 
 Route::get('/members/data', function () {
@@ -18,9 +30,6 @@ Route::get('/members/data', function () {
 Route::get('/assets/data', function () {
     return view('assets.data');
 });
-
-Route::get('/rent/form', [RentalController::class, 'create'])->name('rent.create');
-Route::post('/rent', [RentalController::class, 'store'])->name('rent.store');
 
 Route::get('/sectors/data', function () {
     return view('sectors.data');
