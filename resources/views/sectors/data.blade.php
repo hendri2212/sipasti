@@ -3,10 +3,10 @@
 @section('content')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {{-- <main class="container py-4"> --}}
-  <div class="px-3 mb-4 bg-body-tertiary rounded-3">
-    <div class="container-fluid py-3">
+  <div class="mb-4 bg-body-tertiary rounded-3">
+    <div class="container-fluid p-3">
       <h1 class="display-6 fw-bold text-success">Data Bidang</h1>
-      <p class="fs-4">Berikut adalah daftar bidang beserta jabatannya:</p>
+      <p class="fs-4 mb-0">Berikut adalah daftar bidang beserta jabatannya:</p>
     </div>
   </div>
 

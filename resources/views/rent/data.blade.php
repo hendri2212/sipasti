@@ -1,10 +1,10 @@
 @extends('welcome')
 
 @section('content')
-<div class="px-3 mb-4 bg-body-tertiary rounded-3">
-    <div class="container-fluid py-3">
+<div class="mb-4 bg-body-tertiary rounded-3">
+    <div class="container-fluid p-3">
         <h1 class="display-6 fw-bold text-success">Penggunaan Aset</h1>
-        <p class="fs-4">Data penggunaan aset DISPARPORA Kotabaru</p>
+        <p class="fs-4 mb-0">Data penggunaan aset DISPARPORA Kotabaru</p>
     </div>
 </div>
 <div class="d-flex flex-wrap gap-2 mb-4" id="statusFilters">

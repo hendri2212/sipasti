@@ -31,7 +31,14 @@
                             <li class="nav-item"><a class="nav-link" href="{{ url('/sectors/data') }}">Bidang</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">Users</a></li>
                             <li class="nav-item ms-md-3">
-                                <a href="/login" class="btn btn-success btn-sm px-3 d-md-inline-flex align-items-center"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a>
+                                <a href="{{ route('logout') }}"
+                                   class="btn btn-danger btn-sm px-3 d-md-inline-flex align-items-center"
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
                             </li>
                         </ul>
                     </div>

@@ -64,10 +64,10 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {{-- <main class="container py-4"> --}}
-    <div class="px-3 mb-4 bg-body-tertiary rounded-3">
-        <div class="container-fluid py-3">
+    <div class="mb-4 bg-body-tertiary rounded-3">
+        <div class="container-fluid p-3">
             <h1 class="display-6 fw-bold text-success">Data Aset</h1>
-            <p class="fs-4">Berikut adalah daftar aset yang dapat dipinjam.</p>
+            <p class="fs-4 mb-0">Berikut adalah daftar aset yang dapat dipinjam.</p>
         </div>
     </div>
     @php
