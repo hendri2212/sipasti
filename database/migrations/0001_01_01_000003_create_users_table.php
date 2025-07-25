@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone')->unique();
             $table->string('password');
+            $table->rememberToken();
             $table->enum('role', ['super_admin', 'admin', 'user'])->default('user');
             $table->foreignId('institution_id')->nullable()->constrained('institutions')->onDelete('set null')->nullable();
             $table->timestamps();
