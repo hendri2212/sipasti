@@ -28,10 +28,11 @@
 
                     <div class="collapse navbar-collapse" id="mainNavbar">
                         <ul class="navbar-nav ms-auto mb-2 mb-md-0 align-items-md-center">
+                            <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Home</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url('/members/data') }}">Members</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url('/assets/data') }}">Assets</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url('/sectors/data') }}">Bidang</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">Users</a></li>
+                            {{-- <li class="nav-item"><a class="nav-link" href="#">Users</a></li> --}}
                             <li class="nav-item ms-md-3">
                                 <a href="{{ route('logout') }}"
                                    class="btn btn-danger btn-sm px-3 d-md-inline-flex align-items-center"

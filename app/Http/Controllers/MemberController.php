@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
+
 use Illuminate\Http\Request;
 
-class MemberController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+class MemberController extends Controller {
+    public function index() {
+        // $members = Member::with('institution')->get();
+        $members = Member::all();
+        return view('members.data', compact('members'));
     }
 
     /**

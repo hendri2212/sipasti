@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\MemberController;
 
 // Hanya guest yang bisa ke login
 Route::middleware('guest')->group(function () {
@@ -25,11 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/rent/{rentalAsset}/cancel', [RentalController::class, 'cancel'])->name('rent.cancel');
     Route::get('/rent/{rentalAsset}/change', [RentalController::class, 'change'])->name('rent.change');
     Route::get('/rent/events/{rentalAsset}', [RentalController::class, 'byAssetId'])->name('rent.events');
+    
+    Route::get('/members/data', [MemberController::class, 'index'])->name('members.data');
 });
 
-Route::get('/members/data', function () {
-    return view('members.data');
-});
 
 Route::get('/assets/data', function () {
     return view('assets.data');
