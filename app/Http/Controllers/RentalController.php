@@ -205,11 +205,22 @@ class RentalController extends Controller {
             ->with('success', 'Peminjaman berhasil diubah dan notifikasi terkirim.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(RentalAsset $rentalAsset)
+    public function byAssetId(RentalAsset $rentalAsset)
     {
+        $events = RentalAsset::where('asset_id', $rentalAsset->asset_id)
+            ->whereNotNull('start_at')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'title' => $item->member->name,
+                    'start' => optional($item->start_at)->format('Y-m-d'),
+                ];
+            });
+
+        return response()->json($events);
+    }
+
+    public function destroy(RentalAsset $rentalAsset) {
         //
     }
 }

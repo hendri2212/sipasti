@@ -126,14 +126,15 @@
         const calendarEl = document.getElementById('calendar')
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            events: [
-                { title: 'Sepak Bola Nasional', start: '2025-07-30' }
-            ]
+            events: {
+                url: '{{ route('rent.events', $rental) }}',
+                method: 'GET',
+            }
         })
         calendar.render()
     })
 </script>
-<script>
+{{-- <script>
     document.addEventListener('DOMContentLoaded', function() {
         flatpickr("#daterange", {
             mode: "range",          // enable range selection
@@ -143,4 +144,4 @@
             plugins: [new rangePlugin({ input: "#daterange" })]
         });
     });
-</script>
+</script> --}}
