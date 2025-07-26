@@ -12,29 +12,25 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
     
-        <form action="{{ route('rent.store') }}" method="POST" enctype="multipart/form-data" class="card shadow-sm p-4">
+        <form action="{{ route('rent.store') }}" method="POST" enctype="multipart/form-data" class="card shadow-sm rounded-3 p-4">
             @csrf
-    
-            <div class="mb-3">
-                <label class="form-label">Full Name</label>
+            <div class="form-floating mb-2">
                 <input type="text" name="name" value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror" required>
+                <label class="form-label">Full Name</label>
                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-    
-            <div class="mb-3">
-                <label class="form-label">Whatsapp Number</label>
+            <div class="form-floating mb-2">
                 <input type="tel" name="phone" value="{{ old('phone') }}" class="form-control @error('phone') is-invalid @enderror" required>
+                <label class="form-label">Whatsapp Number</label>
                 @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-    
-            <div class="mb-3">
-                <label class="form-label">Address</label>
+            <div class="form-floating mb-2">
                 <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required>{{ old('address') }}</textarea>
+                <label class="form-label">Address</label>
                 @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-    
-            <div class="mb-3">
-                <label class="form-label">Institution</label>
+            <div class="mb-2">
+                {{-- <label class="form-label">Institution</label> --}}
                 <select name="institution_id" id="institution_id" class="form-select select2 @error('institution_id') is-invalid @enderror" data-placeholder="-- Pilih Instansi --" required>
                     <option value="">-- Pilih Instansi --</option>
                     @foreach($institutions as $ins)
@@ -45,8 +41,8 @@
             </div>
     
             <div class="mb-3">
-                <label class="form-label">Asset</label>
-                <select name="asset_id" id="asset_id" class="form-select select2 @error('asset_id') is-invalid @enderror" data-placeholder="-- Pilih Aset --" required>
+                {{-- <label class="form-label">Asset</label> --}}
+                <select name="asset_id" id="asset_id" class="form-select form-control-lg select2 @error('asset_id') is-invalid @enderror" data-placeholder="-- Pilih Aset --" required>
                     <option value="">-- Pilih Aset --</option>
                     @foreach($assets as $a)
                         <option value="{{ $a->id }}" @selected(old('asset_id')==$a->id)>{{ $a->name }}</option>
@@ -56,7 +52,7 @@
             </div>
     
             <div class="mb-3">
-                <label class="form-label">Foto / Bukti Surat Permohoman</label>
+                {{-- <label class="form-label">Foto / Bukti Surat Permohoman</label> --}}
                 {{-- Input kamera (mobile akan memunculkan kamera) --}}
                 <input type="file"
                        name="photo"
@@ -74,12 +70,71 @@
         </form>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            $('.select2').select2({
-                width: '100%',
-                allowClear: true,
-                placeholder: function(){ return $(this).data('placeholder') || '-- Pilih --'; }
+// Customized Select2 for institution with tagging and AJAX save
+document.addEventListener('DOMContentLoaded', function () {
+    // Institution select2 with tagging
+    $('#institution_id').select2({
+        width: '100%',
+        tags: true,
+        allowClear: true,
+        placeholder: function() {
+            return $(this).data('placeholder') || '-- Pilih --';
+        },
+        createTag: function(params) {
+            var term = $.trim(params.term);
+            if (!term) {
+                return null;
+            }
+            return {
+                id: term,
+                text: term,
+                newTag: true
+            };
+        },
+        templateResult: function(data) {
+            if (data.loading) return data.text;
+            var $container = $('<span></span>').text(data.text);
+            if (data.newTag) {
+                $container.append(
+                    ' <button type="button" class="btn btn-sm btn-outline-primary ms-2 add-institution" data-name="' + data.text + '">Simpan</button>'
+                );
+            }
+            return $container;
+        },
+        escapeMarkup: function(markup) {
+            return markup;
+        }
+    }).on('select2:select', function(e) {
+        var data = e.params.data;
+        if (data.newTag) {
+            // AJAX request to save new institution
+            $.ajax({
+                url: '{{ route("institutions.store") }}',
+                type: 'POST',
+                data: {
+                    name: data.text,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    // Replace temporary option with real one
+                    var newOption = new Option(response.name, response.id, true, true);
+                    $('#institution_id').find(':selected').replaceWith(newOption).trigger('change');
+                },
+                error: function() {
+                    alert('Gagal menyimpan instansi baru');
+                }
             });
-        });
+        }
+    });
+
+    // Initialize asset select2 normally
+    $('#asset_id').select2({
+        width: '100%',
+        allowClear: true,
+        placeholder: function() {
+            return $(this).data('placeholder') || '-- Pilih Aset --';
+        }
+    });
+});
     </script>
 @endsection

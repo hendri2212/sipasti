@@ -23,12 +23,19 @@ class InstitutionController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request) {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $institution = Institution::create([
+            'name' => $validated['name'],
+        ]);
+
+        return response()->json([
+            'id' => $institution->id,
+            'name' => $institution->name,
+        ], 201);
     }
 
     /**

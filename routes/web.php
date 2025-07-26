@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\InstitutionController;
 
 // Hanya guest yang bisa ke login
 Route::middleware('guest')->group(function () {
@@ -28,6 +29,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/rent/events/{rentalAsset}', [RentalController::class, 'byAssetId'])->name('rent.events');
     
     Route::get('/members/data', [MemberController::class, 'index'])->name('members.data');
+
+    Route::get('/users/role', function () {
+        // Restrict access to super_admin only
+        abort_if(auth()->user()->role !== 'super_admin', 403);
+        return view('users.role');
+    })->name('users.role');
+
+    Route::post('/institutions', [InstitutionController::class, 'store'])->name('institutions.store');
 });
 
 

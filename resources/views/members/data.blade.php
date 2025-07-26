@@ -9,11 +9,11 @@
 </div>
 <div class="row g-4">
     @foreach($members as $member)
-        <div class="col-12 col-sm-4 col-md-3 col-lg-2">
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
             <div class="card h-100 shadow-sm">
-                <img src="{{ $member->profile_photo_url ?? ('https://ui-avatars.com/api/?name='.urlencode($member->name).'&size=150') }}" 
-                     class="card-img-top" 
-                     alt="{{ $member->name }}">
+                <img src="{{ $member->profile_photo_url ?? 'https://i.pravatar.cc/150?u='.$member->name }}" 
+                    class="card-img-top" 
+                    alt="{{ $member->name }}">
                 <div class="card-body text-center">
                     <h5 class="card-title mb-1">{{ $member->name }}</h5>
                     <p class="mb-0">

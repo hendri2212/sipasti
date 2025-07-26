@@ -20,6 +20,7 @@
         <header class="mb-4">
             <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm py-3">
                 <div class="container">
+                    <img src="{{ asset('sipasti.png') }}" alt="SIPASTI Logo" class="navbar-brand-logo me-2" width="40" height="40">
                     <a class="navbar-brand fw-bold text-success" href="{{ url('/') }}">SIPASTI</a>
 
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +33,11 @@
                             <li class="nav-item"><a class="nav-link" href="{{ url('/members/data') }}">Members</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url('/assets/data') }}">Assets</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url('/sectors/data') }}">Bidang</a></li>
+                            @auth
+                                @if(auth()->user()->role === 'super_admin')
+                                    <li class="nav-item"><a class="nav-link" href="{{ url('/users/role') }}">Role</a></li>
+                                @endif
+                            @endauth
                             {{-- <li class="nav-item"><a class="nav-link" href="#">Users</a></li> --}}
                             <li class="nav-item ms-md-3">
                                 <a href="{{ route('logout') }}"

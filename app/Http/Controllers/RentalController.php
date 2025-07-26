@@ -51,7 +51,7 @@ class RentalController extends Controller {
                     'message' => "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
                         . "Yth. Bapak/Ibu *{$admin->name}*,\n\n"
                         . "Terdapat *Surat Permohonan dari {$member->name}* yang memerlukan *disposisi* Anda.\n"
-                        . "Silakan cek detailnya di \n" . route('rent.show', $rental->id) . "\n\n"
+                        . "Silakan cek detailnya di " . route('rent.show', $rental->id) . "\n\n"
                         . "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren."
                 ]
             );
