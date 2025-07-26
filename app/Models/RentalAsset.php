@@ -9,11 +9,18 @@ use App\Models\Member;
 
 class RentalAsset extends Model {
     protected $fillable = [
-        'institution_id',
         'member_id',
+        'institution_id',
         'asset_id',
-        'status',
         'photo',
+        'start_at',
+        'end_at',
+        'status',
+    ];
+
+    protected $casts = [
+        'start_at' => 'datetime',
+        'end_at'   => 'datetime',
     ];
 
     /**

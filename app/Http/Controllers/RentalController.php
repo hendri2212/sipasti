@@ -73,34 +73,53 @@ class RentalController extends Controller {
     }
 
     public function update(Request $request, RentalAsset $rentalAsset) {
-        $validated = $request->validate([
-            'institution_id' => 'required|exists:institutions,id',
-            'asset_id' => 'required|exists:assets,id',
-            // 'status' => 'required|string', // Optionally remove or ignore this line
-            // add other fields as needed
+        $data = $request->validate([
+            'start_at' => 'required|string',
         ]);
-        // Set status to process regardless of input
-        $validated['status'] = 'process';
-        $rentalAsset->update($validated);
-        return redirect()->route('rent.show', $rentalAsset)->with('success', 'Rental updated and status set to process.');
+
+        $start = \Carbon\Carbon::parse($data['start_at']);
+        
+        $rentalAsset->update([
+            'start_at' => $start,
+            'status'   => 'finish',
+        ]);
+
+        $asset = Asset::find($rentalAsset->asset_id);
+
+        $member = Member::find($rentalAsset->member_id);
+        // Format dates to dd-mm-yyyy hh:mm:ss
+        $formattedStart = $rentalAsset->start_at->format('d-m-Y H:i:s');
+        Http::post(
+            config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
+            [
+                'to'      => preg_replace('/^0/', '62', $member->phone),
+                'message' => "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
+                    . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
+                    . "Permohonan Anda untuk penggunaan *{$asset->name}* pada tanggal {$formattedStart} telah di setujui DISPARPORA Kotabaru.\n\n"
+                    . "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren."
+            ]
+        );
+
+        return redirect()
+            ->route('rent.show', $rentalAsset)
+            ->with('success', 'Tanggal penggunaan dan status berhasil diperbarui.');
     }
 
     public function approve(RentalAsset $rentalAsset) {
         // 1. Update status
         $rentalAsset->update(['status' => 'process']);
 
-        // 2. Load related asset owner and member
-        $rentalAsset->load('asset.user', 'member');
+        // 2. Load related asset owners and member
+        $rentalAsset->load('asset.users', 'member');
 
-        $admin  = $rentalAsset->asset->user;
-        $member = $rentalAsset->member;
+        $admins = $rentalAsset->asset->users()->where('role', 'admin')->get();
 
-        // 3. Prepare and send WhatsApp notification if admin exists
-        if ($admin && $admin->role === 'admin') {
+        // 3. Prepare and send WhatsApp notification to all admins
+        foreach ($admins as $admin) {
             $to      = preg_replace('/^0/', '62', $admin->phone);
             $message = $this->buildApprovalMessage(
                 $admin->name,
-                $member->name,
+                $rentalAsset->member->name,
                 $rentalAsset->id
             );
 
@@ -120,8 +139,70 @@ class RentalController extends Controller {
         return "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
             . "Yth. Bapak/Ibu *{$adminName}*,\n\n"
             . "Peminjaman dari *{$memberName}* telah disetujui oleh Pimpinan, silahkan tentukan tanggal penggunaan aset.\n"
-            . "Detail: " . route('rent.show', $rentalId) . "\n\n"
+            . "Cek detail pada link " . route('rent.show', $rentalId) . "\n\n"
             . "_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
+    }
+
+    public function cancel(RentalAsset $rentalAsset) {
+        // 1. Update status to 'cancel'
+        $rentalAsset->update([
+            'start_at' => null,
+            'status'   => 'cancel',
+        ]);
+        
+        $asset = Asset::find($rentalAsset->asset_id);
+        // 2. Load related member
+        $member = Member::find($rentalAsset->member_id);
+
+        // 3. Prepare and send WhatsApp notification if member exists
+        if ($member) {
+            $to      = preg_replace('/^0/', '62', $member->phone);
+            $message = "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
+                . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
+                . "Peminjaman *{$asset->name}* telah dibatalkan oleh admin. Kami mohon maaf atas ketidaknyamanan yang Bapak/Ibu alami.\n\n"
+                . "_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
+
+            Http::post(
+                config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
+                ['to' => $to, 'message' => $message]
+            );
+        }
+
+        // 4. Redirect back with success
+        return redirect()
+            ->route('rent.show', $rentalAsset)
+            ->with('success', 'Peminjaman berhasil dibatalkan dan notifikasi terkirim.');
+    }
+
+    public function change(RentalAsset $rentalAsset) {
+        // 1. Update status to 'change'
+        $rentalAsset->update([
+            'start_at' => null,
+            'status'   => 'process',
+        ]);
+        
+        $asset = Asset::find($rentalAsset->asset_id);
+        // 2. Load related member
+        $member = Member::find($rentalAsset->member_id);
+
+        // 3. Prepare and send WhatsApp notification if member exists
+        if ($member) {
+            $to      = preg_replace('/^0/', '62', $member->phone);
+            $message = "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
+                . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
+                . "Peminjaman *{$asset->name}* akan di proses ulang oleh admin, silahkan tunggu informasi selanjutnya.\n\n"
+                . "_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
+
+            Http::post(
+                config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
+                ['to' => $to, 'message' => $message]
+            );
+        }
+
+        // 4. Redirect back with success
+        return redirect()
+            ->route('rent.show', $rentalAsset)
+            ->with('success', 'Peminjaman berhasil diubah dan notifikasi terkirim.');
     }
 
     /**

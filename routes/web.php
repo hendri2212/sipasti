@@ -21,6 +21,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/rent', [RentalController::class, 'store'])->name('rent.store');
     Route::get('/rent/{rentalAsset}', [RentalController::class, 'show'])->name('rent.show');
     Route::get('/rent/{rentalAsset}/approve', [RentalController::class, 'approve'])->name('rent.approve');
+    Route::put('/rent/{rentalAsset}', [RentalController::class, 'update'])->name('rent.update');
+    Route::get('/rent/{rentalAsset}/cancel', [RentalController::class, 'cancel'])->name('rent.cancel');
+    Route::get('/rent/{rentalAsset}/change', [RentalController::class, 'change'])->name('rent.change');
 });
 
 Route::get('/members/data', function () {

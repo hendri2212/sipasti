@@ -8,8 +8,8 @@
     </div>
 </div>
 <div class="d-flex flex-wrap gap-2 mb-4" id="statusFilters">
-    <button type="button" class="btn btn-sm btn-outline-success active" data-filter="all">Semua</button>
-    <button type="button" class="btn btn-sm btn-outline-secondary" data-filter="waiting">Waiting</button>
+    <button type="button" class="btn btn-sm btn-outline-success" data-filter="all">Semua</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary active" data-filter="waiting">Waiting</button>
     <button type="button" class="btn btn-sm btn-outline-primary" data-filter="process">Process</button>
     <button type="button" class="btn btn-sm btn-outline-dark" data-filter="finish">Finish</button>
     <button type="button" class="btn btn-sm btn-outline-danger" data-filter="cancel">Cancel</button>
@@ -36,12 +36,11 @@
                                 <small class="text-muted">
                                     Peminjaman:
                                     @if($rental->start_at && $rental->end_at)
-                                    {{ $rental->start_at->format('Y-m-d H:i') }} - {{ $rental->end_at->format('Y-m-d
-                                    H:i') }}
+                                        {{ $rental->start_at->format('Y-m-d H:i') }} - {{ $rental->end_at->format('Y-m-d H:i') }}
                                     @elseif($rental->start_at)
-                                    Mulai {{ $rental->start_at->format('Y-m-d H:i') }}
+                                        Mulai {{ $rental->start_at->format('Y-m-d H:i') }}
                                     @else
-                                    {{ $rental->created_at->format('Y-m-d') }}
+                                        {{ $rental->created_at->format('Y-m-d') }}
                                     @endif
                                 </small>
                             </p>
@@ -58,24 +57,33 @@
     @endforeach
 </div>
 <script>
-    (function () {
-        const buttons = document.querySelectorAll('#statusFilters [data-filter]');
-        const cards = document.querySelectorAll('#cardsGrid [data-status]');
+(function () {
+    const buttons = document.querySelectorAll('#statusFilters [data-filter]');
+    const cards = document.querySelectorAll('#cardsGrid [data-status]');
 
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // toggle active state
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                const filter = btn.getAttribute('data-filter');
-                cards.forEach(card => {
-                    const match = filter === 'all' || card.getAttribute('data-status') === filter;
-                    card.classList.toggle('d-none', !match);
-                });
-            });
+    function filterCards(filter) {
+        cards.forEach(card => {
+            const match = filter === 'all' || card.getAttribute('data-status') === filter;
+            card.classList.toggle('d-none', !match);
         });
-    })();
+    }
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // toggle active state
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            filterCards(btn.getAttribute('data-filter'));
+        });
+    });
+
+    // Initial filter on page load
+    const activeBtn = document.querySelector('#statusFilters [data-filter].active');
+    if (activeBtn) {
+        filterCards(activeBtn.getAttribute('data-filter'));
+    }
+})();
 </script>
 <a href="{{ url('/rent/form') }}"
     class="btn btn-success rounded-circle position-fixed bottom-0 end-0 m-4 shadow fab-add d-flex align-items-center justify-content-center"

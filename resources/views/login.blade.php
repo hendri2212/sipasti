@@ -30,7 +30,7 @@
                     <span class="fs-1 text-success fw-bold">SIPASTI</span>
                     <div class="form-floating mb-2">
                         <input class="form-control form-control-lg rounded-0" type="text" id="phone" name="phone" placeholder="User name">
-                        <label for="phone">User name</label>
+                        <label for="phone">Whatsapp Number</label>
                     </div>
                     <div class="form-floating mb-2">
                         <input class="form-control form-control-lg rounded-0" type="password" id="password" name="password" placeholder="Password">

@@ -1,6 +1,19 @@
 @extends('welcome')
 
 @section('content')
+<style>
+    /* Remove underline and set elegant font color for FullCalendar headers and dates */
+    .fc .fc-col-header-cell-cushion,
+    .fc .fc-daygrid-day-number {
+        text-decoration: none !important;
+        color: #2C3E50 !important;
+    }
+    /* Ensure day numbers (links) inherit the same styling */
+    .fc .fc-daygrid-day-number a {
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+</style>
 <div class="mb-4 bg-body-tertiary rounded-3">
     <div class="container-fluid p-3">
         <h1 class="display-6 fw-bold text-success">Penggunaan Aset</h1>
@@ -42,36 +55,60 @@
                 <div class="d-flex flex-column mb-3">
                     <small class="text-muted">Asset Name</small>
                     <h5 class="fw-bold mb-1">{{ $rental->asset->name }}</h5>
-                    {{-- <p class="text-muted mb-0">Jumat, 25 Juli 2025</p> --}}
                 </div>
-                <div class="d-flex flex-column mb-3">
-                    <small class="text-muted">Date</small>
-                    <dd class="col-sm-8">{{ $rental->created_at->format('Y-m-d') }}</dd>
-                    <h5 class="fw-bold mb-1">
-                        @if($rental->start_at)
-                            <dt class="col-sm-4">Mulai</dt>
-                            <dd class="col-sm-8">{{ $rental->start_at->format('Y-m-d H:i') }}</dd>
-                        @endif
-
-                        @if($rental->end_at)
-                            <dt class="col-sm-4">Selesai</dt>
-                            <dd class="col-sm-8">{{ $rental->end_at->format('Y-m-d H:i') }}</dd>
-                        @endif
-                    </h5>
-                </div>
-                @if($rental->status == 'waiting' && in_array(auth()->user()->role, ['super_admin', 'admin']))
-                <div class="d-grid gap-3 d-flex justify-content-between mt-4">
-                    <button class="btn btn-danger flex-fill">Tolak</button>
-                    <a href="{{ route('rent.approve', $rental->id) }}" class="btn btn-success flex-fill">Setujui</a>
-                </div>
+                <small for="daterange" class="text-muted">Periode (Start & Finish)</small>
+                <form action="{{ route('rent.update', $rental->id) }}" method="POST" class="flex-fill mb-0">
+                    @csrf
+                    @method('PUT')
+                    {{-- <input
+                        type="text"
+                        id="daterange"
+                        name="daterange"
+                        class="form-control"
+                        placeholder="Pilih tanggal & waktu"
+                        value="{{ old('daterange', optional($rental->start_at)->format('Y-m-d H:i') . ' to ' . optional($rental->end_at)->format('Y-m-d H:i')) }}"
+                    > --}}
+                    
+                    <input
+                        type="datetime-local"
+                        name="start_at"
+                        id="start_at"
+                        class="form-control"
+                        value="{{ old('start_at', optional($rental->start_at)->format('Y-m-d\\TH:i')) }}"
+                        @if($rental->start_at || $rental->status == 'waiting') disabled @endif
+                    >
+                    
+                    @if($rental->status == 'process' && in_array(auth()->user()->role, ['admin']) && $rental->start_at == null)
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-success col-4">Update</button>
+                        </div>
+                    @endif
+                </form>
+                @if($rental->status == 'waiting' && in_array(auth()->user()->role, ['super_admin']))
+                    <div class="d-flex justify-content-end mt-3">
+                        {{-- <button class="btn btn-danger flex-fill">Tolak</button> --}}
+                        <a href="{{ route('rent.approve', $rental->id) }}" class="btn btn-success col-4">Setujui</a>
+                    </div>
                 @endif
+                @if($rental->status == 'finish' && in_array(auth()->user()->role, ['admin']))
+                    <div class="d-flex justify-content-end mt-3">
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <a href="{{ route('rent.change', $rental->id) }}" class="btn btn-warning">Change</a>
+                            <a href="{{ route('rent.cancel', $rental->id) }}" class="btn btn-danger">Cancel</a>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+        <div class="card bg-white shadow-sm rounded-3 border-0 mt-3">
+            <div class="card-body p-3">
+                <div id="calendar"></div>
             </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="card bg-white shadow-sm rounded-3 border-0">
             <div class="card-body p-3">
-                {{-- <h5 class="fw-bold mb-3">Keterangan</h5> --}}
                 @if($rental->photo)
                     <img src="{{ asset('storage/' . $rental->photo) }}" 
                         alt="Scan Surat" 
@@ -84,3 +121,26 @@
     </div>
 </div>
 @endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar')
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: [
+                { title: 'Sepak Bola Nasional', start: '2025-07-30' }
+            ]
+        })
+        calendar.render()
+    })
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#daterange", {
+            mode: "range",          // enable range selection
+            enableTime: true,       // tampilkan pilihan jam
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            plugins: [new rangePlugin({ input: "#daterange" })]
+        });
+    });
+</script>

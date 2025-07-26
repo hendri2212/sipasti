@@ -45,4 +45,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function assets() {
+        return $this->belongsToMany(Asset::class)
+                    ->withTimestamps(); // sesuai pivot jika pakai timestamps
+    }
 }
