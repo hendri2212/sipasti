@@ -27,6 +27,8 @@
             <div class="col-md-6 d-flex align-items-center justify-content-center text-center">
                 <form action="{{ route('login') }}" method="POST" style="background: rgba(255,255,255,0.9); max-width: 400px; width: 100%;">
                     @csrf
+                    <img src="{{ asset('sipasti.png') }}" alt="Logo" class="mb-4" style="width: 100px; height: auto;">
+                    <br>
                     <span class="fs-1 text-success fw-bold">SIPASTI</span>
                     <div class="form-floating mb-2">
                         <input class="form-control form-control-lg rounded-0" type="text" id="phone" name="phone" placeholder="User name">
