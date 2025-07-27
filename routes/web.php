@@ -5,6 +5,7 @@ use App\Http\Controllers\RentalController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\InstitutionController;
+use App\Http\Controllers\AssetController;
 
 // Hanya guest yang bisa ke login
 Route::middleware('guest')->group(function () {
@@ -37,12 +38,10 @@ Route::middleware('auth')->group(function () {
     })->name('users.role');
 
     Route::post('/institutions', [InstitutionController::class, 'store'])->name('institutions.store');
+    Route::get('/assets/data', [AssetController::class, 'index'])->name('assets.data');
 });
 
 
-Route::get('/assets/data', function () {
-    return view('assets.data');
-});
 
 Route::get('/sectors/data', function () {
     return view('sectors.data');
