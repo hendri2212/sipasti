@@ -25,8 +25,8 @@ class AssetSeeder extends Seeder
             ['title'=>'GOR Bulu Tangkis Bamega','img'=>'gor_bulu_tangkis.webp','desc'=>'Gelanggang olahraga bulu tangkis standar internasional.'],
             ['title'=>'Basket Indoor','img'=>'basket_indor.webp','desc'=>'Lapangan basket indoor dengan pencahayaan baik.'],
             ['title'=>'Lapangan Volly','img'=>'lapangan_voly.webp','desc'=>'Lapangan voli outdoor dengan permukaan berkualitas.'],
-            ['title'=>'Gedung Tenis Indoor Gunung Jambangan','img'=>'https://picsum.photos/id/1027/400/200','desc'=>'Tenis indoor dengan atap tertutup dan ventilasi bagus.'],
-            ['title'=>'Lapangan Futsal Gunung Pemandangan','img'=>'https://picsum.photos/id/1035/400/200','desc'=>'Lapangan futsal outdoor dekat pusat kota.'],
+            ['title'=>'Gedung Tenis Indoor Gunung Jambangan','img'=>'tenis_jambangan.webp','desc'=>'Tenis indoor dengan atap tertutup dan ventilasi bagus.'],
+            ['title'=>'Lapangan Futsal Gunung Pemandangan','img'=>'futsal_pemandangan.webp','desc'=>'Lapangan futsal outdoor dekat pusat kota.'],
             ['title'=>'Lapangan Karate Tugu Nelayan','img'=>'https://picsum.photos/id/1036/400/200','desc'=>'Dojo terbuka untuk latihan karate terbimbing.'],
             ['title'=>'Lapangan Tenis Meja','img'=>'https://picsum.photos/id/1037/400/200','desc'=>'Arena tenis meja dengan meja standar ITTF.'],
             ['title'=>'Gedung Mahligai Pemuda','img'=>'gedung_mahligai.webp','desc'=>'Gedung serbaguna untuk acara kecil sampai besar.'],
@@ -34,11 +34,14 @@ class AssetSeeder extends Seeder
         ];
 
         foreach ($assets as $item) {
+            $imageUrl = filter_var($item['img'], FILTER_VALIDATE_URL)
+                ? $item['img']
+                : Storage::url('assets/' . $item['img']);
             Asset::updateOrCreate(
                 ['name' => $item['title']],
                 [
                     'description' => $item['desc'],
-                    'image'       => Storage::url('assets/' . $item['img']),
+                    'image'       => $imageUrl,
                 ]
             );
         }
