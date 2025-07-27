@@ -10,7 +10,7 @@
 <div class="row g-4">
     @foreach($members as $member)
         <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100 border-success shadow-sm">
                 <img src="{{ $member->profile_photo_url ?? 'https://i.pravatar.cc/150?u='.$member->name }}" 
                     class="card-img-top" 
                     alt="{{ $member->name }}">

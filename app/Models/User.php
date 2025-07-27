@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\AssetUser;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -49,5 +51,13 @@ class User extends Authenticatable
     public function assets() {
         return $this->belongsToMany(Asset::class)
                     ->withTimestamps(); // sesuai pivot jika pakai timestamps
+    }
+
+    /**
+     * Relasi ke tabel pivot asset_user.
+     */
+    public function assetUsers(): HasMany
+    {
+        return $this->hasMany(AssetUser::class, 'user_id');
     }
 }

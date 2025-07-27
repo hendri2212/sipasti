@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetUserController;
 
 // Hanya guest yang bisa ke login
 Route::middleware('guest')->group(function () {
@@ -32,9 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/members/data', [MemberController::class, 'index'])->name('members.data');
 
     Route::get('/users/role', function () {
-        // Restrict access to super_admin only
         abort_if(auth()->user()->role !== 'super_admin', 403);
-        return view('users.role');
+        return app(AssetUserController::class)->index();
     })->name('users.role');
 
     Route::post('/institutions', [InstitutionController::class, 'store'])->name('institutions.store');
