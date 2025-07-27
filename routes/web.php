@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [RentalController::class, 'index'])->name('rent.index');
     Route::get('/rent/form', [RentalController::class, 'create'])->name('rent.create');
     Route::post('/rent', [RentalController::class, 'store'])->name('rent.store');
+    Route::get('/rent/report', [RentalController::class, 'report'])->name('rent.report');
     Route::get('/rent/{rentalAsset}', [RentalController::class, 'show'])->name('rent.show');
     Route::get('/rent/{rentalAsset}/approve', [RentalController::class, 'approve'])->name('rent.approve');
     Route::put('/rent/{rentalAsset}', [RentalController::class, 'update'])->name('rent.update');

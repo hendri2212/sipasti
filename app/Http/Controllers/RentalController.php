@@ -220,6 +220,21 @@ class RentalController extends Controller {
         return response()->json($events);
     }
 
+    public function report(Request $request) {
+        $start = $request->get('start_date');
+        $end   = $request->get('end_date');
+
+        $query = RentalAsset::with(['institution','asset','member'])
+            ->orderBy('start_at','asc');
+
+        if ($start && $end) {
+            $query->whereBetween('start_at', [$start, $end]);
+        }
+
+        $rentalAssets = $query->get();
+        return view('report.data', compact('rentalAssets','start','end'));
+    }
+
     public function destroy(RentalAsset $rentalAsset) {
         //
     }

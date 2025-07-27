@@ -33,6 +33,7 @@
                             <li class="nav-item"><a class="nav-link" href="{{ url('/members/data') }}">Members</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url('/assets/data') }}">Assets</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ url('/sectors/data') }}">Bidang</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url('/rent/report') }}">Laporan</a></li>
                             @auth
                                 @if(auth()->user()->role === 'super_admin')
                                     <li class="nav-item"><a class="nav-link" href="{{ url('/users/role') }}">Role</a></li>

@@ -126,6 +126,42 @@ class UserSeeder extends Seeder {
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ],
+            [
+                'name'           => 'Bella Puspa',
+                'phone'          => '081229252560',
+                'password'       => Hash::make('12345678'),
+                'role'           => 'user',
+                'institution_id' => 2,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ],
+            [
+                'name'           => 'Nisa Auliah, S. Sos',
+                'phone'          => '085349820545',
+                'password'       => Hash::make('12345678'),
+                'role'           => 'user',
+                'institution_id' => 2,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ],
+            [
+                'name'           => 'Hj. Rohana, S.S',
+                'phone'          => '081373769948',
+                'password'       => Hash::make('12345678'),
+                'role'           => 'admin',
+                'institution_id' => 2,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ],
+            [
+                'name'           => 'Zulham Fathoni, SST.Par',
+                'phone'          => '082242755659',
+                'password'       => Hash::make('12345678'),
+                'role'           => 'admin',
+                'institution_id' => 2,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ],
         ]);
     }
 }
