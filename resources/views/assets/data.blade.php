@@ -16,8 +16,8 @@
 </style>
 <div class="mb-4 bg-body-tertiary rounded-3">
     <div class="container-fluid p-3">
-        <h1 class="display-6 fw-bold text-success">Data Aset</h1>
-        <p class="fs-4 mb-0">Berikut adalah daftar aset yang dapat dipinjam.</p>
+        <h1 class="display-6 fw-bold text-primary">Data Aset</h1>
+        <p class="fs-4 mb-0">Berikut adalah daftar aset DISPARPORA Kotabaru</p>
     </div>
 </div>
 
@@ -26,11 +26,11 @@
     <div class="col-12 col-md-6 col-lg-4">
         <a href="#" data-bs-toggle="modal" data-bs-target="#assetModal{{ $index }}"
             class="d-block text-decoration-none text-reset h-100">
-            <div class="card h-100 border-success shadow-sm">
+            <div class="card h-100 border-info shadow-sm">
                 <img src="{{ $asset->image }}" class="card-img-top" style="object-fit:cover; height:200px;"
                     alt="{{ $asset->title }}">
                 <div class="card-body">
-                    <h5 class="card-title text-success">{{ $asset->name }}</h5>
+                    <h5 class="card-title text-info">{{ $asset->name }}</h5>
                     <p class="card-text text-muted">{{ $asset->description }}</p>
                 </div>
             </div>

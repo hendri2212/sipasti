@@ -13,6 +13,20 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
     {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> --}}
+    <style>
+        .nav-link.active {
+            position: relative;
+        }
+        .nav-link.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: rgb(28, 14, 223);
+        }
+    </style>
 </head>
 
 <body class="bg-body-secondary">
@@ -21,7 +35,7 @@
             <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm py-3">
                 <div class="container">
                     <img src="{{ asset('sipasti.png') }}" alt="SIPASTI Logo" class="navbar-brand-logo me-2" width="40" height="40">
-                    <a class="navbar-brand fw-bold text-success" href="{{ url('/') }}">SIPASTI</a>
+                    <a class="navbar-brand fw-bold text-primary" href="{{ url('/') }}">SIPASTI</a>
 
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -29,20 +43,32 @@
 
                     <div class="collapse navbar-collapse" id="mainNavbar">
                         <ul class="navbar-nav ms-auto mb-2 mb-md-0 align-items-md-center">
-                            <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Home</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url('/members/data') }}">Members</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url('/assets/data') }}">Assets</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url('/sectors/data') }}">Bidang</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url('/rent/report') }}">Laporan</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('members/data*') ? 'active' : '' }}" href="{{ url('/members/data') }}">Pemohon</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('assets/data*') ? 'active' : '' }}" href="{{ url('/assets/data') }}">Assets</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('sectors/data*') ? 'active' : '' }}" href="{{ url('/sectors/data') }}">Bidang</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('rent/report') ? 'active' : '' }}" href="{{ url('/rent/report') }}">Laporan</a>
+                            </li>
                             @auth
                                 @if(auth()->user()->role === 'super_admin')
-                                    <li class="nav-item"><a class="nav-link" href="{{ url('/users/role') }}">Role</a></li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ Request::is('users/role') ? 'active' : '' }}" href="{{ url('/users/role') }}">Role</a>
+                                    </li>
                                 @endif
                             @endauth
                             {{-- <li class="nav-item"><a class="nav-link" href="#">Users</a></li> --}}
                             <li class="nav-item ms-md-3">
                                 <a href="{{ route('logout') }}"
-                                   class="btn btn-danger btn-sm px-3 d-md-inline-flex align-items-center"
+                                   class="btn btn-primary btn-sm px-3 d-md-inline-flex align-items-center"
                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="bi bi-box-arrow-right me-1"></i> Logout
                                 </a>

@@ -3,14 +3,14 @@
 @section('content')
 <div class="mb-4 bg-body-tertiary rounded-3">
     <div class="container-fluid p-3">
-        <h1 class="display-6 fw-bold text-success">Data Pemohon</h1>
+        <h1 class="display-6 fw-bold text-primary">Data Pemohon</h1>
         <p class="fs-4 mb-0">Data pemohon penggunaan aset DISPARPORA Kotabaru</p>
     </div>
 </div>
 <div class="row g-4">
     @foreach($members as $member)
         <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-            <div class="card h-100 border-success shadow-sm">
+            <div class="card h-100 border-info shadow-sm">
                 <img src="{{ $member->profile_photo_url ?? 'https://i.pravatar.cc/150?u='.$member->name }}" 
                     class="card-img-top" 
                     alt="{{ $member->name }}">

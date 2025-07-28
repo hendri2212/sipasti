@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-4 bg-body-tertiary rounded-3">
     <div class="container-fluid p-3">
-        <h1 class="display-6 fw-bold text-success">Penggunaan Aset</h1>
+        <h1 class="display-6 fw-bold text-primary">Penggunaan Aset</h1>
         <p class="fs-4 mb-0">Data penggunaan aset DISPARPORA Kotabaru</p>
     </div>
 </div>
@@ -24,11 +24,11 @@
         @if($canClick)
             <a href="{{ route('rent.show', $rental->id) }}" class="text-decoration-none text-reset">
         @endif
-            <div class="card h-100 border-success rounded-3 shadow-sm">
+            <div class="card h-100 border-info rounded-3 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-start">
                         <div class="flex-grow-1">
-                            <h5 class="card-title text-success">{{ $rental->member->name }}</h5>
+                            <h5 class="card-title text-info">{{ $rental->member->name }}</h5>
                             <h6 class="card-subtitle mb-2 text-muted">{{ $rental->institution->name }}</h6>
                             <p class="mb-1"><strong>WhatsApp:</strong> {{ $rental->member->phone }}</p>
                             <p class="mb-1"><strong>Aset:</strong> {{ $rental->asset->name }}</p>
@@ -46,7 +46,7 @@
                             </p>
                         </div>
                         <img src="{{ $rental->photo ? asset('storage/' . $rental->photo) : 'https://via.placeholder.com/100x150?text=No+Image' }}"
-                            class="rounded ms-3" alt="{{ $rental->member->name }}" width="100" height="150">
+                            class="rounded border border-dark-subtle ms-3" alt="{{ $rental->member->name }}" width="100" height="150">
                     </div>
                 </div>
             </div>
@@ -86,7 +86,7 @@
 })();
 </script>
 <a href="{{ url('/rent/form') }}"
-    class="btn btn-success rounded-circle position-fixed bottom-0 end-0 m-4 shadow fab-add d-flex align-items-center justify-content-center"
+    class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow fab-add d-flex align-items-center justify-content-center"
     style="width:60px;height:60px;z-index:1050;">
     <i class="bi bi-plus-lg fs-3"></i>
     <span class="visually-hidden">Tambah</span>

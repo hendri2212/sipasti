@@ -47,7 +47,7 @@
 </div>
 <div class="mb-4 bg-body-tertiary rounded-3">
     <div class="container-fluid p-3">
-        <h1 class="display-6 fw-bold text-success">Laporan</h1>
+        <h1 class="display-6 fw-bold text-primary">Laporan</h1>
         <p class="fs-4 mb-0">Data laporan penggunaan aset DISPARPORA Kotabaru.</p>
     </div>
 </div>
@@ -63,7 +63,7 @@
             value="{{ request('end_date') }}">
     </div>
     <div class="col-auto">
-        <button type="submit" class="btn btn-success">Filter</button>
+        <button type="submit" class="btn btn-info">Filter</button>
     </div>
     <div class="col-auto">
         <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
@@ -78,7 +78,7 @@
                         <th scope="col">#</th>
                         <th scope="col">Instansi</th>
                         <th scope="col">Aset</th>
-                        <th scope="col">Pengguna</th>
+                        <th scope="col">Pemohon</th>
                         <th scope="col">Foto</th>
                         <th scope="col">Tanggal</th>
                         <th scope="col">Status</th>

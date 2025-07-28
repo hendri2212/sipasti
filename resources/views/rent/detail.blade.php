@@ -16,7 +16,7 @@
 </style>
 <div class="mb-4 bg-body-tertiary rounded-3">
     <div class="container-fluid p-3">
-        <h1 class="display-6 fw-bold text-success">Penggunaan Aset</h1>
+        <h1 class="display-6 fw-bold text-primary">Penggunaan Aset</h1>
         <p class="fs-4 mb-0">Detail penggunaan aset DISPARPORA Kotabaru</p>
     </div>
 </div>
@@ -80,14 +80,14 @@
                     
                     @if($rental->status == 'process' && in_array(auth()->user()->role, ['admin']) && $rental->start_at == null)
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-success col-4">Update</button>
+                            <button type="submit" class="btn btn-primary col-4">Update</button>
                         </div>
                     @endif
                 </form>
                 @if($rental->status == 'waiting' && in_array(auth()->user()->role, ['super_admin']))
                     <div class="d-flex justify-content-end mt-3">
                         {{-- <button class="btn btn-danger flex-fill">Tolak</button> --}}
-                        <a href="{{ route('rent.approve', $rental->id) }}" class="btn btn-success col-4">Setujui</a>
+                        <a href="{{ route('rent.approve', $rental->id) }}" class="btn btn-info col-4">Setujui</a>
                     </div>
                 @endif
                 @if($rental->status == 'finish' && in_array(auth()->user()->role, ['admin']))
