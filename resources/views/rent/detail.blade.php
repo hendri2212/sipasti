@@ -109,12 +109,27 @@
     <div class="col-md-6">
         <div class="card bg-white shadow-sm rounded-3 border-0">
             <div class="card-body p-3">
-                @if($rental->photo)
+                {{-- @if($rental->photo)
                     <img src="{{ asset('storage/' . $rental->photo) }}" 
                         alt="Scan Surat" 
                         class="img-fluid">
                 @else
                     <div class="border rounded p-5 text-muted">Tidak ada foto.</div>
+                @endif --}}
+                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png']))
+                        <img src="{{ asset('storage/' . $rental->photo) }}" 
+                            alt="Scan Surat" 
+                            class="img-fluid">
+                    @elseif(strtolower($extension) === 'pdf')
+                        <iframe src="{{ asset('storage/' . $rental->photo) }}" 
+                                width="100%" 
+                                height="600px" 
+                                style="border: none;"></iframe>
+                    @else
+                        <div class="border rounded p-5 text-muted">Format file tidak didukung.</div>
+                    @endif
+                @else
+                    <div class="border rounded p-5 text-muted">Tidak ada file yang diunggah.</div>
                 @endif
             </div>
         </div>

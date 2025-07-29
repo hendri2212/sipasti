@@ -38,7 +38,9 @@ class RentalController extends Controller {
             'institution_id'    => $request->institution_id,
             'member_id'         => $member->id,
             'asset_id'          => $request->asset_id,
-            'photo' => $path,
+            'photo'             => $path,
+            'rental_number'     => $request->rental_number,
+            'rental_date'       => $request->rental_date,
         ]);
 
         // Send WhatsApp message to all super admins
@@ -87,15 +89,19 @@ class RentalController extends Controller {
         $asset = Asset::find($rentalAsset->asset_id);
 
         $member = Member::find($rentalAsset->member_id);
-        // Format dates to dd-mm-yyyy hh:mm:ss
         $formattedStart = $rentalAsset->start_at->format('d-m-Y H:i:s');
+        $formattedRentalDate = optional($rentalAsset->rental_date)->format('d-m-Y');
+
         Http::post(
             config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
             [
                 'to'      => preg_replace('/^0/', '62', $member->phone),
                 'message' => "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
                     . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
-                    . "Permohonan Anda untuk penggunaan *{$asset->name}* pada tanggal {$formattedStart} telah di setujui DISPARPORA Kotabaru.\n\n"
+                    . "Permohonan Anda untuk penggunaan *{$asset->name}* telah disetujui oleh DISPARPORA Kotabaru.\n\n"
+                    . "*Nomor Surat:* {$rentalAsset->rental_number}\n"
+                    . "*Tanggal Surat:* {$formattedRentalDate}\n"
+                    . "*Tanggal Penggunaan:* {$formattedStart}\n\n"
                     . "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren."
             ]
         );
@@ -205,9 +211,8 @@ class RentalController extends Controller {
             ->with('success', 'Peminjaman berhasil diubah dan notifikasi terkirim.');
     }
 
-    public function byAssetId(RentalAsset $rentalAsset)
-    {
-        $events = RentalAsset::where('asset_id', $rentalAsset->asset_id)
+    public function byAssetId(RentalAsset $rentalAsset) {
+        return $events = RentalAsset::where('asset_id', $rentalAsset->asset_id)
             ->whereNotNull('start_at')
             ->get()
             ->map(function ($item) {
@@ -217,7 +222,7 @@ class RentalController extends Controller {
                 ];
             });
 
-        return response()->json($events);
+        // return response()->json($events);
     }
 
     public function report(Request $request) {

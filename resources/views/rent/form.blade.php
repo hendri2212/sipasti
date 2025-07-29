@@ -15,6 +15,16 @@
         <form action="{{ route('rent.store') }}" method="POST" enctype="multipart/form-data" class="card shadow-sm rounded-3 p-4">
             @csrf
             <div class="form-floating mb-2">
+                <input type="text" name="rental_number" value="{{ old('rental_number') }}" class="form-control @error('rental_number') is-invalid @enderror" required>
+                <label class="form-label">Letter Number</label>
+                @error('rental_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-floating mb-3">
+                <input type="date" name="rental_date" value="{{ old('rental_date') }}" class="form-control @error('rental_date') is-invalid @enderror" required>
+                <label class="form-label">Letter Date</label>
+                @error('rental_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-floating mb-2">
                 <input type="text" name="name" value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror" required>
                 <label class="form-label">Full Name</label>
                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -39,7 +49,6 @@
                 </select>
                 @error('institution_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-    
             <div class="mb-3">
                 {{-- <label class="form-label">Asset</label> --}}
                 <select name="asset_id" id="asset_id" class="form-select form-control-lg select2 @error('asset_id') is-invalid @enderror" data-placeholder="-- Pilih Aset --" required>
@@ -56,8 +65,7 @@
                 {{-- Input kamera (mobile akan memunculkan kamera) --}}
                 <input type="file"
                        name="photo"
-                       accept="image/*"
-                       capture="environment"
+                       accept="image/*,application/pdf"
                        class="form-control @error('photo') is-invalid @enderror"
                        required>
                 @error('photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
