@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/rent/{rentalAsset}', [RentalController::class, 'update'])->name('rent.update');
     Route::get('/rent/{rentalAsset}/cancel', [RentalController::class, 'cancel'])->name('rent.cancel');
     Route::get('/rent/{rentalAsset}/change', [RentalController::class, 'change'])->name('rent.change');
-    Route::get('/rent/events/{rentalAsset}', [RentalController::class, 'byAssetId'])->name('rent.events');
+    Route::get('rent/events/{assetId}', [RentalController::class, 'byAssetId'])->name('rent.events');
     
     Route::get('/members/data', [MemberController::class, 'index'])->name('members.data');
 

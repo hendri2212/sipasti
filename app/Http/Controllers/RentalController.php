@@ -211,18 +211,19 @@ class RentalController extends Controller {
             ->with('success', 'Peminjaman berhasil diubah dan notifikasi terkirim.');
     }
 
-    public function byAssetId(RentalAsset $rentalAsset) {
-        return $events = RentalAsset::where('asset_id', 8)
+    public function byAssetId($assetId) {
+        $events = RentalAsset::with('institution')
+            ->where('asset_id', $assetId)
             ->whereNotNull('start_at')
             ->get()
             ->map(function ($item) {
                 return [
-                    'title' => $item->member->name,
+                    'title' => $item->institution->name,
                     'start' => optional($item->start_at)->format('Y-m-d'),
                 ];
             });
 
-        // return response()->json($events);
+        return response()->json($events);
     }
 
     public function report(Request $request) {

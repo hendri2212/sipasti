@@ -116,7 +116,12 @@
                 @else
                     <div class="border rounded p-5 text-muted">Tidak ada foto.</div>
                 @endif --}}
-                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png']))
+                @if($rental->photo)
+                    @php
+                        $extension = pathinfo($rental->photo, PATHINFO_EXTENSION);
+                    @endphp
+
+                    @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png']))
                         <img src="{{ asset('storage/' . $rental->photo) }}" 
                             alt="Scan Surat" 
                             class="img-fluid">
