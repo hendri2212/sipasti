@@ -15,14 +15,14 @@
         <form action="{{ route('rent.store') }}" method="POST" enctype="multipart/form-data" class="card shadow-sm rounded-3 p-4">
             @csrf
             <div class="form-floating mb-2">
-                <input type="text" name="rental_number" value="{{ old('rental_number') }}" class="form-control @error('rental_number') is-invalid @enderror" required>
+                <input type="text" name="letter_number" value="{{ old('letter_number') }}" class="form-control @error('letter_number') is-invalid @enderror" required>
                 <label class="form-label">Letter Number</label>
-                @error('rental_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                @error('letter_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="form-floating mb-3">
-                <input type="date" name="rental_date" value="{{ old('rental_date') }}" class="form-control @error('rental_date') is-invalid @enderror" required>
+                <input type="date" name="letter_date" value="{{ old('letter_date') }}" class="form-control @error('letter_date') is-invalid @enderror" required>
                 <label class="form-label">Letter Date</label>
-                @error('rental_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                @error('letter_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="form-floating mb-2">
                 <input type="text" name="name" value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror" required>

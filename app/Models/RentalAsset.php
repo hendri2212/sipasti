@@ -16,14 +16,14 @@ class RentalAsset extends Model {
         'start_at',
         'end_at',
         'status',
-        'rental_number',
-        'rental_date',
+        'letter_number',
+        'letter_date',
     ];
 
     protected $casts = [
         'start_at' => 'datetime',
         'end_at'   => 'datetime',
-        'rental_date' => 'date',
+        'letter_date' => 'date',
     ];
 
     /**

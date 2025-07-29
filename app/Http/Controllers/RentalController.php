@@ -39,8 +39,8 @@ class RentalController extends Controller {
             'member_id'         => $member->id,
             'asset_id'          => $request->asset_id,
             'photo'             => $path,
-            'rental_number'     => $request->rental_number,
-            'rental_date'       => $request->rental_date,
+            'letter_number'     => $request->letter_number,
+            'letter_date'       => $request->letter_date,
         ]);
 
         // Send WhatsApp message to all super admins
@@ -90,7 +90,7 @@ class RentalController extends Controller {
 
         $member = Member::find($rentalAsset->member_id);
         $formattedStart = $rentalAsset->start_at->format('d-m-Y H:i:s');
-        $formattedRentalDate = optional($rentalAsset->rental_date)->format('d-m-Y');
+        $formattedRentalDate = optional($rentalAsset->letter_date)->format('d-m-Y');
 
         Http::post(
             config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
@@ -99,7 +99,7 @@ class RentalController extends Controller {
                 'message' => "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
                     . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
                     . "Permohonan Anda untuk penggunaan *{$asset->name}* telah disetujui oleh DISPARPORA Kotabaru.\n\n"
-                    . "*Nomor Surat:* {$rentalAsset->rental_number}\n"
+                    . "*Nomor Surat:* {$rentalAsset->letter_number}\n"
                     . "*Tanggal Surat:* {$formattedRentalDate}\n"
                     . "*Tanggal Penggunaan:* {$formattedStart}\n\n"
                     . "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren."

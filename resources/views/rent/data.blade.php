@@ -45,7 +45,12 @@
                                 </small>
                             </p>
                         </div>
-                        <img src="{{ $rental->photo ? asset('storage/' . $rental->photo) : 'https://via.placeholder.com/100x150?text=No+Image' }}"
+                        @php
+                            $extension = $rental->photo ? pathinfo($rental->photo, PATHINFO_EXTENSION) : null;
+                            $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'webp']);
+                            $thumbnailUrl = $isImage ? asset('storage/' . $rental->photo) : 'https://placehold.co/100x150?text=PDF';
+                        @endphp
+                        <img src="{{ $thumbnailUrl }}"
                             class="rounded border border-dark-subtle ms-3" alt="{{ $rental->member->name }}" width="100" height="150">
                     </div>
                 </div>
