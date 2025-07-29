@@ -16,7 +16,7 @@ class StoreRentalRequest extends FormRequest {
             'address'         => ['required','string'],
             'institution_id'  => ['required','exists:institutions,id'],
             'asset_id'        => ['required','exists:assets,id'],
-            'photo'           => ['required', 'file', 'mimetypes:image/jpeg,image/png,application/pdf', 'max:2048'],
+            'photo'           => ['required', 'file', 'mimetypes:image/jpeg,image/png,application/pdf', 'max:5120'],
         ];
     }
 }

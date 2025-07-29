@@ -65,6 +65,7 @@
                 {{-- Input kamera (mobile akan memunculkan kamera) --}}
                 <input type="file"
                        name="photo"
+                       id="photo"
                        accept="image/*,application/pdf"
                        class="form-control @error('photo') is-invalid @enderror"
                        required>
@@ -144,5 +145,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-    </script>
+document.addEventListener('DOMContentLoaded', function () {
+    const photoInput = document.getElementById('photo');
+    if (photoInput) {
+        photoInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file && file.size > 5 * 1024 * 1024) { // > 5MB
+                alert("Ukuran file tidak boleh lebih dari 5MB.");
+                this.value = ""; // reset input
+            }
+        });
+    }
+});
+</script>
 @endsection
