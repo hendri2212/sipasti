@@ -212,7 +212,7 @@ class RentalController extends Controller {
     }
 
     public function byAssetId(RentalAsset $rentalAsset) {
-        return $events = RentalAsset::where('asset_id', $rentalAsset->asset_id)
+        return $events = RentalAsset::where('asset_id', 8)
             ->whereNotNull('start_at')
             ->get()
             ->map(function ($item) {
