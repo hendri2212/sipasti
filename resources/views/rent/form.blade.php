@@ -3,7 +3,7 @@
 @section('content')
     <div class="px-3 mb-4 bg-body-tertiary rounded-3">
         <div class="container-fluid py-3">
-            <h1 class="display-6 fw-bold text-success">Peminjaman Aset</h1>
+            <h1 class="display-6 fw-bold text-primary">Peminjaman Aset</h1>
             <p class="fs-4">Input Form Data Peminjaman Aset</p>
         </div>
     </div>
@@ -65,7 +65,7 @@
             </div>
     
             <div class="text-end">
-                <button class="btn btn-success">Ajukan</button>
+                <button class="btn btn-info">Ajukan</button>
             </div>
         </form>
     </div>
