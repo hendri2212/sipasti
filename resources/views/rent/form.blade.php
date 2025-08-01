@@ -16,28 +16,38 @@
             @csrf
             <div class="form-floating mb-2">
                 <input type="text" name="letter_number" value="{{ old('letter_number') }}" class="form-control @error('letter_number') is-invalid @enderror" required>
-                <label class="form-label">Letter Number</label>
+                <label class="form-label">Nomor Surat</label>
                 @error('letter_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="form-floating mb-3">
                 <input type="date" name="letter_date" value="{{ old('letter_date') }}" class="form-control @error('letter_date') is-invalid @enderror" required>
-                <label class="form-label">Letter Date</label>
+                <label class="form-label">Tanggal Surat</label>
                 @error('letter_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-floating mb-3">
+                <input type="date" name="incoming_letter_date" value="{{ old('incoming_letter_date') }}" class="form-control @error('incoming_letter_date') is-invalid @enderror">
+                <label class="form-label">Tanggal Surat Masuk</label>
+                @error('incoming_letter_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="form-floating mb-2">
                 <input type="text" name="name" value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror" required>
-                <label class="form-label">Full Name</label>
+                <label class="form-label">Nama Lengkap</label>
                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="form-floating mb-2">
                 <input type="tel" name="phone" value="{{ old('phone') }}" class="form-control @error('phone') is-invalid @enderror" required>
-                <label class="form-label">Whatsapp Number</label>
+                <label class="form-label">Nomor Whatsapp</label>
                 @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="form-floating mb-2">
                 <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required>{{ old('address') }}</textarea>
-                <label class="form-label">Address</label>
+                <label class="form-label">Alamat</label>
                 @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" name="regarding" value="{{ old('regarding') }}" class="form-control @error('regarding') is-invalid @enderror">
+                <label class="form-label">Perihal</label>
+                @error('regarding')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="mb-2">
                 {{-- <label class="form-label">Institution</label> --}}
@@ -72,7 +82,15 @@
                 @error('photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 <small class="text-muted">Gunakan kamera belakang untuk foto langsung.</small>
             </div>
-    
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input @error('recommendation') is-invalid @enderror" type="checkbox" value="1" id="recommendation" name="recommendation" {{ old('recommendation') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="recommendation">
+                        Perlu Rekomendasi
+                    </label>
+                    @error('recommendation')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            </div>
             <div class="text-end">
                 <button class="btn btn-info">Ajukan</button>
             </div>
@@ -143,6 +161,11 @@ document.addEventListener('DOMContentLoaded', function () {
         placeholder: function() {
             return $(this).data('placeholder') || '-- Pilih Aset --';
         }
+    });
+
+    $(document).on('select2:open', function() {
+        let searchField = document.querySelector('.select2-container--open .select2-search__field');
+        if (searchField) searchField.focus();
     });
 });
 document.addEventListener('DOMContentLoaded', function () {

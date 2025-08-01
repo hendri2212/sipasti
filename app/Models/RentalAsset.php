@@ -18,6 +18,10 @@ class RentalAsset extends Model {
         'status',
         'letter_number',
         'letter_date',
+        'incoming_letter_date',
+        'recommendation',
+        'regarding',
+        'recommendation_letter',
     ];
 
     protected $casts = [

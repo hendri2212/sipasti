@@ -35,12 +35,15 @@ class RentalController extends Controller {
         ]);
 
         $rental = RentalAsset::create([
-            'institution_id'    => $request->institution_id,
-            'member_id'         => $member->id,
-            'asset_id'          => $request->asset_id,
-            'photo'             => $path,
-            'letter_number'     => $request->letter_number,
-            'letter_date'       => $request->letter_date,
+            'institution_id'       => $request->institution_id,
+            'member_id'            => $member->id,
+            'asset_id'             => $request->asset_id,
+            'photo'                => $path,
+            'letter_number'        => $request->letter_number,
+            'letter_date'          => $request->letter_date,
+            'incoming_letter_date' => $request->incoming_letter_date,
+            'recommendation'       => $request->recommendation,
+            'regarding'            => $request->regarding,
         ]);
 
         // Send WhatsApp message to all super admins
@@ -77,19 +80,31 @@ class RentalController extends Controller {
     public function update(Request $request, RentalAsset $rentalAsset) {
         $data = $request->validate([
             'start_at' => 'required|string',
+            'end_at'   => 'required|string',
         ]);
 
         $start = \Carbon\Carbon::parse($data['start_at']);
+        $end = \Carbon\Carbon::parse($data['end_at']);
         
         $rentalAsset->update([
             'start_at' => $start,
+            'end_at'   => $end,
             'status'   => 'finish',
         ]);
+
+        if ($rentalAsset->recommendation && $request->hasFile('recommendation_letter')) {
+            $request->validate([
+                'recommendation_letter' => 'file|mimes:pdf,jpg,jpeg,png|max:5120'
+            ]);
+            $path = $request->file('recommendation_letter')->store('recommendation', 'public');
+            $rentalAsset->update(['recommendation_letter' => $path]);
+        }
 
         $asset = Asset::find($rentalAsset->asset_id);
 
         $member = Member::find($rentalAsset->member_id);
         $formattedStart = $rentalAsset->start_at->format('d-m-Y H:i:s');
+        $formattedEnd = $rentalAsset->end_at->format('d-m-Y H:i:s');
         $formattedRentalDate = optional($rentalAsset->letter_date)->format('d-m-Y');
 
         Http::post(
@@ -101,7 +116,8 @@ class RentalController extends Controller {
                     . "Permohonan Anda untuk penggunaan *{$asset->name}* telah disetujui oleh DISPARPORA Kotabaru.\n\n"
                     . "*Nomor Surat:* {$rentalAsset->letter_number}\n"
                     . "*Tanggal Surat:* {$formattedRentalDate}\n"
-                    . "*Tanggal Penggunaan:* {$formattedStart}\n\n"
+                    . "*Tanggal Penggunaan:* {$formattedStart}\n"
+                    . "*Tanggal Selesai:* {$formattedEnd}\n\n"
                     . "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren."
             ]
         );
@@ -212,16 +228,25 @@ class RentalController extends Controller {
     }
 
     public function byAssetId($assetId) {
-        $events = RentalAsset::with('institution')
+        $events = [];
+        $rentalAssets = RentalAsset::with('institution')
             ->where('asset_id', $assetId)
             ->whereNotNull('start_at')
-            ->get()
-            ->map(function ($item) {
-                return [
+            ->whereNotNull('end_at')
+            ->get();
+
+        foreach ($rentalAssets as $item) {
+            $current = \Carbon\Carbon::parse($item->start_at)->startOfDay();
+            $end = \Carbon\Carbon::parse($item->end_at)->startOfDay();
+
+            while ($current->lte($end)) {
+                $events[] = [
                     'title' => $item->institution->name,
-                    'start' => optional($item->start_at)->format('Y-m-d'),
+                    'start' => $current->format('Y-m-d'),
                 ];
-            });
+                $current->addDay();
+            }
+        }
 
         return response()->json($events);
     }

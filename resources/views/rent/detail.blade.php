@@ -49,15 +49,19 @@
                     </span>
                 </div>
                 <div class="d-flex flex-column mb-3">
-                    <small class="text-muted">From</small>
+                    <small class="text-muted">Dari</small>
                     <h5 class="fw-bold mb-1">{{ $rental->institution->name }}</h5>
                 </div>
                 <div class="d-flex flex-column mb-3">
-                    <small class="text-muted">Asset Name</small>
+                    <small class="text-muted">Nama Aset</small>
                     <h5 class="fw-bold mb-1">{{ $rental->asset->name }}</h5>
                 </div>
-                <small for="daterange" class="text-muted">Periode (Start & Finish)</small>
-                <form action="{{ route('rent.update', $rental->id) }}" method="POST" class="flex-fill mb-0">
+                <div class="d-flex flex-column mb-3">
+                    <small class="text-muted">Perihal</small>
+                    <h5 class="fw-light mb-1">{{ $rental->regarding }}</h5>
+                </div>
+                {{-- <small for="daterange" class="text-muted">Periode (Mulai & Selesai)</small> --}}
+                <form action="{{ route('rent.update', $rental->id) }}" method="POST" class="flex-fill mb-0" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     {{-- <input
@@ -69,18 +73,47 @@
                         value="{{ old('daterange', optional($rental->start_at)->format('Y-m-d H:i') . ' to ' . optional($rental->end_at)->format('Y-m-d H:i')) }}"
                     > --}}
                     
-                    <input
-                        type="datetime-local"
-                        name="start_at"
-                        id="start_at"
-                        class="form-control"
-                        value="{{ old('start_at', optional($rental->start_at)->format('Y-m-d\\TH:i')) }}"
-                        @if($rental->start_at || $rental->status == 'waiting') disabled @endif
-                    >
+                    <div class="row g-2 align-items-end mb-2">
+                        <div class="col">
+                            <label for="start_at" class="form-label small text-muted">Mulai</label>
+                            <input
+                                type="datetime-local"
+                                name="start_at"
+                                id="start_at"
+                                class="form-control"
+                                value="{{ old('start_at', optional($rental->start_at)->format('Y-m-d\\TH:i')) }}"
+                                @if($rental->start_at || $rental->status == 'waiting') disabled @endif
+                            >
+                        </div>
+                        <div class="col">
+                            <label for="end_at" class="form-label small text-muted">Selesai</label>
+                            <input
+                                type="datetime-local"
+                                name="end_at"
+                                id="end_at"
+                                class="form-control"
+                                value="{{ old('end_at', optional($rental->end_at)->format('Y-m-d\\TH:i')) }}"
+                                @if($rental->end_at || $rental->status == 'waiting') disabled @endif
+                            >
+                        </div>
+                    </div>
                     
+                    {{-- Surat Rekomendasi jika dibutuhkan dan admin --}}
+                    @if($rental->recommendation && auth()->user()->role == 'admin')
+                        <div class="mb-3">
+                            <label for="recommendation_letter" class="form-label">Upload Surat Rekomendasi</label>
+                            <input type="file" class="form-control" name="recommendation_letter" id="recommendation_letter" accept=".pdf,.jpg,.jpeg,.png">
+                            @error('recommendation_letter')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endif
                     @if($rental->status == 'process' && in_array(auth()->user()->role, ['admin']) && $rental->start_at == null)
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-primary col-4">Update</button>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="submit" class="btn btn-primary">Terima</button>
+                                <a href="{{ route('rent.cancel', $rental->id) }}" class="btn btn-danger">Tolak</a>
+                            </div>
                         </div>
                     @endif
                 </form>
@@ -93,8 +126,8 @@
                 @if($rental->status == 'finish' && in_array(auth()->user()->role, ['admin']))
                     <div class="d-flex justify-content-end mt-3">
                         <div class="btn-group" role="group" aria-label="Basic example">
-                            <a href="{{ route('rent.change', $rental->id) }}" class="btn btn-warning">Change</a>
-                            <a href="{{ route('rent.cancel', $rental->id) }}" class="btn btn-danger">Cancel</a>
+                            <a href="{{ route('rent.change', $rental->id) }}" class="btn btn-warning">Ganti</a>
+                            <a href="{{ route('rent.cancel', $rental->id) }}" class="btn btn-danger">Batalkan</a>
                         </div>
                     </div>
                 @endif
@@ -147,7 +180,7 @@
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: {
-                url: '{{ route('rent.events', $rental) }}',
+                url: '{{ route('rent.events', $rental->asset_id) }}',
                 method: 'GET',
             }
         })
