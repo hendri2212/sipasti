@@ -103,8 +103,9 @@ class RentalController extends Controller {
         $asset = Asset::find($rentalAsset->asset_id);
 
         $member = Member::find($rentalAsset->member_id);
-        $formattedStart = $rentalAsset->start_at->format('d-m-Y H:i:s');
-        $formattedEnd = $rentalAsset->end_at->format('d-m-Y H:i:s');
+        \Illuminate\Support\Carbon::setLocale('id');
+        $formattedStart = $rentalAsset->start_at->translatedFormat('d F Y') . ' jam ' . $rentalAsset->start_at->format('H.i') . ' WITA';
+        $formattedEnd = $rentalAsset->end_at->translatedFormat('d F Y') . ' jam ' . $rentalAsset->end_at->format('H.i') . ' WITA';
         $formattedRentalDate = optional($rentalAsset->letter_date)->format('d-m-Y');
 
         Http::post(
@@ -181,7 +182,9 @@ class RentalController extends Controller {
             $to      = preg_replace('/^0/', '62', $member->phone);
             $message = "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
                 . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
-                . "Peminjaman *{$asset->name}* telah dibatalkan oleh admin. Kami mohon maaf atas ketidaknyamanan yang Bapak/Ibu alami.\n\n"
+                . "Permohonan peminjaman *{$asset->name}* belum dapat kami proses lebih lanjut sehingga statusnya kami batalkan. Hal ini dapat disebabkan oleh berbagai pertimbangan, seperti ketersediaan aset, jadwal bentrok, atau persyaratan administrasi yang belum terpenuhi.\n\n"
+                . "Untuk informasi lebih lanjut atau konfirmasi, silakan hubungi admin Disparpora Kotabaru.\n\n"
+                . "Terima kasih atas pengertiannya.\n\n"
                 . "_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
 
             Http::post(
