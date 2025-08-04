@@ -42,7 +42,7 @@ class RentalController extends Controller {
             'letter_number'        => $request->letter_number,
             'letter_date'          => $request->letter_date,
             'incoming_letter_date' => $request->incoming_letter_date,
-            'recommendation'       => $request->recommendation,
+            'recommendation'       => $request->has('recommendation') ? true : false,
             'regarding'            => $request->regarding,
         ]);
 
