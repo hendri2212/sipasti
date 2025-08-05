@@ -75,14 +75,15 @@
                         <table class="table table-sm table-bordered small">
                             <thead class="table-light">
                                 <tr>
-                                <th>Tanggal</th>
-                                <th>Jam Mulai</th>
-                                <th>Jam Selesai</th>
+                                    <th>Tanggal</th>
+                                    <th>Jam Mulai</th>
+                                    <th>Jam Selesai</th>
                                 </tr>
                             </thead>
                             <tbody style="max-height: 200px; overflow-y: auto; display: block;">
                                 @foreach($rental->schedules as $schedule)
-                                <tr style="display: table; width: 100%; table-layout: fixed;">
+                                {{-- <tr style="display: table; width: 100%; table-layout: fixed;"> --}}
+                                <tr>
                                     <td>{{ \Carbon\Carbon::parse($schedule->date)->format('d M Y') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</td>
