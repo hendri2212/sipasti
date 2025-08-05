@@ -63,7 +63,7 @@
                 @if($rental->schedules && $rental->schedules->count())
                     <div class="d-flex flex-column mb-3">
                         <small class="text-muted">Jadwal Peminjaman</small>
-                        {{-- <ul class="mb-0 ps-3" style="max-height: 200px; overflow-y: auto;">
+                        <ul class="mb-0 ps-3" style="max-height: 200px; overflow-y: auto;">
                             @foreach($rental->schedules as $schedule)
                                 <li>
                                     {{ \Carbon\Carbon::parse($schedule->date)->format('d M Y') }},
@@ -71,8 +71,8 @@
                                     {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }} WITA
                                 </li>
                             @endforeach
-                        </ul> --}}
-                        <table class="table table-sm table-bordered small">
+                        </ul>
+                        {{-- <table class="table table-sm table-bordered small">
                             <thead class="table-light">
                                 <tr>
                                     <th>Tanggal</th>
@@ -82,15 +82,14 @@
                             </thead>
                             <tbody style="max-height: 200px; overflow-y: auto; display: block;">
                                 @foreach($rental->schedules as $schedule)
-                                {{-- <tr style="display: table; width: 100%; table-layout: fixed;"> --}}
-                                <tr>
+                                <tr style="display: table; width: 100%; table-layout: fixed;">
                                     <td>{{ \Carbon\Carbon::parse($schedule->date)->format('d M Y') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </table> --}}
                     </div>
                 @endif
                 
