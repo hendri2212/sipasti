@@ -19,13 +19,13 @@ return new class extends Migration {
             $table->boolean('recommendation')->default(false); // Checklist perlu rekomendasi
             $table->string('recommendation_letter')->nullable(); // File scan surat rekomendasi
             $table->string('regarding')->nullable(); // Perihal
-            $table->dateTime('start_at')->nullable();   // contoh: 2025-07-23 08:00:00
-            $table->dateTime('end_at')->nullable();     // contoh: 2025-07-23 17:00:00
+            // $table->dateTime('start_at')->nullable();   // contoh: 2025-07-23 08:00:00
+            // $table->dateTime('end_at')->nullable();     // contoh: 2025-07-23 17:00:00
             $table->enum('status', ['waiting', 'process', 'finish', 'cancel'])->default('waiting');
             $table->timestamps();
 
             // index tambahan bila perlu
-            $table->index(['start_at', 'end_at']);
+            // $table->index(['start_at', 'end_at']);
             $table->index('status');
         });
     }

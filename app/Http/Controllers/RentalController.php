@@ -79,53 +79,65 @@ class RentalController extends Controller {
 
     public function update(Request $request, RentalAsset $rentalAsset) {
         $data = $request->validate([
-            'start_at' => 'required|string',
-            'end_at'   => 'required|string',
+            'schedules' => 'required|array|min:1',
+            'schedules.*.date' => 'required|date',
+            'schedules.*.start_time' => 'required|date_format:H:i',
+            'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
+            'recommendation_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        $start = \Carbon\Carbon::parse($data['start_at']);
-        $end = \Carbon\Carbon::parse($data['end_at']);
-        
-        $rentalAsset->update([
-            'start_at' => $start,
-            'end_at'   => $end,
-            'status'   => 'finish',
-        ]);
+        // Hapus jadwal lama dulu (jika diperlukan)
+        $rentalAsset->schedules()->delete();
 
+        // Simpan semua jadwal baru
+        foreach ($data['schedules'] as $schedule) {
+            $rentalAsset->schedules()->create($schedule);
+        }
+
+        // Update status
+        $rentalAsset->update(['status' => 'finish']);
+
+        // Jika ada surat rekomendasi
         if ($rentalAsset->recommendation && $request->hasFile('recommendation_letter')) {
-            $request->validate([
-                'recommendation_letter' => 'file|mimes:pdf,jpg,jpeg,png|max:5120'
-            ]);
             $path = $request->file('recommendation_letter')->store('recommendation', 'public');
             $rentalAsset->update(['recommendation_letter' => $path]);
         }
 
+        // Kirim notifikasi WA
         $asset = Asset::find($rentalAsset->asset_id);
-
         $member = Member::find($rentalAsset->member_id);
         \Illuminate\Support\Carbon::setLocale('id');
-        $formattedStart = $rentalAsset->start_at->translatedFormat('d F Y') . ' jam ' . $rentalAsset->start_at->format('H.i') . ' WITA';
-        $formattedEnd = $rentalAsset->end_at->translatedFormat('d F Y') . ' jam ' . $rentalAsset->end_at->format('H.i') . ' WITA';
+
+        $firstSchedule = $rentalAsset->schedules()->orderBy('date')->first();
+        $lastSchedule = $rentalAsset->schedules()->orderBy('date', 'desc')->first();
+
+        $formattedStart = \Carbon\Carbon::parse($firstSchedule->date)->translatedFormat('d F Y') . ' jam ' . substr($firstSchedule->start_time, 0, 5) . ' WITA';
+        $formattedEnd = \Carbon\Carbon::parse($lastSchedule->date)->translatedFormat('d F Y') . ' jam ' . substr($lastSchedule->end_time, 0, 5) . ' WITA';
         $formattedRentalDate = optional($rentalAsset->letter_date)->format('d-m-Y');
+
+        $message = "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
+            . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
+            . "Permohonan Anda untuk penggunaan *{$asset->name}* telah disetujui oleh DISPARPORA Kotabaru.\n\n"
+            . "*Nomor Surat:* {$rentalAsset->letter_number}\n"
+            . "*Tanggal Surat:* {$formattedRentalDate}\n"
+            . "*Tanggal Penggunaan:* {$formattedStart}\n"
+            . "*Tanggal Selesai:* {$formattedEnd}\n\n";
+
+        if ($rentalAsset->recommendation_letter) {
+            $fileUrl = asset('storage/' . $rentalAsset->recommendation_letter);
+            $message .= "*Surat Rekomendasi:* {$fileUrl}\n\n";
+        }
+
+        $message .= "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
 
         Http::post(
             config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
-            [
-                'to'      => preg_replace('/^0/', '62', $member->phone),
-                'message' => "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
-                    . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
-                    . "Permohonan Anda untuk penggunaan *{$asset->name}* telah disetujui oleh DISPARPORA Kotabaru.\n\n"
-                    . "*Nomor Surat:* {$rentalAsset->letter_number}\n"
-                    . "*Tanggal Surat:* {$formattedRentalDate}\n"
-                    . "*Tanggal Penggunaan:* {$formattedStart}\n"
-                    . "*Tanggal Selesai:* {$formattedEnd}\n\n"
-                    . "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren."
-            ]
+            ['to' => preg_replace('/^0/', '62', $member->phone), 'message' => $message]
         );
 
         return redirect()
             ->route('rent.show', $rentalAsset)
-            ->with('success', 'Tanggal penggunaan dan status berhasil diperbarui.');
+            ->with('success', 'Jadwal penggunaan dan status berhasil diperbarui.');
     }
 
     public function approve(RentalAsset $rentalAsset) {
@@ -166,11 +178,44 @@ class RentalController extends Controller {
             . "_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
     }
 
+    public function reject(RentalAsset $rentalAsset) {
+        // 1. Update status to 'reject'
+        $rentalAsset->update([
+            'status'   => 'cancel',
+        ]);
+        
+        $asset = Asset::find($rentalAsset->asset_id);
+        // 2. Load related member
+        $member = Member::find($rentalAsset->member_id);
+
+        // 3. Prepare and send WhatsApp notification if member exists
+        if ($member) {
+            $to      = preg_replace('/^0/', '62', $member->phone);
+            $message = "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
+                . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
+                . "Permohonan peminjaman *{$asset->name}* belum dapat kami proses lebih lanjut sehingga statusnya kami batalkan. Hal ini dapat disebabkan oleh berbagai pertimbangan, seperti ketersediaan aset, jadwal bentrok, atau persyaratan administrasi yang belum terpenuhi.\n\n"
+                . "Untuk informasi lebih lanjut atau konfirmasi, silakan hubungi admin Disparpora Kotabaru.\n\n"
+                . "Terima kasih atas pengertiannya.\n\n"
+                . "_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
+
+            Http::post(
+                config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
+                ['to' => $to, 'message' => $message]
+            );
+        }
+
+        // 4. Redirect back with success
+        return redirect()
+            ->route('rent.show', $rentalAsset)
+            ->with('success', 'Peminjaman berhasil dibatalkan dan notifikasi terkirim.');
+    }
+
     public function cancel(RentalAsset $rentalAsset) {
+        // Hapus semua jadwal event untuk rental ini
+        $rentalAsset->schedules()->delete();
         // 1. Update status to 'cancel'
         $rentalAsset->update([
-            'start_at' => null,
-            'status'   => 'cancel',
+            'status' => 'cancel',
         ]);
         
         $asset = Asset::find($rentalAsset->asset_id);
@@ -201,9 +246,10 @@ class RentalController extends Controller {
 
     public function change(RentalAsset $rentalAsset) {
         // 1. Update status to 'change'
+        // Hapus semua jadwal event untuk rental ini
+        $rentalAsset->schedules()->delete();
         $rentalAsset->update([
-            'start_at' => null,
-            'status'   => 'process',
+            'status' => 'process',
         ]);
         
         $asset = Asset::find($rentalAsset->asset_id);
@@ -232,22 +278,20 @@ class RentalController extends Controller {
 
     public function byAssetId($assetId) {
         $events = [];
-        $rentalAssets = RentalAsset::with('institution')
+        $rentalAssets = RentalAsset::with(['institution', 'schedules'])
             ->where('asset_id', $assetId)
-            ->whereNotNull('start_at')
-            ->whereNotNull('end_at')
+            ->whereHas('schedules') // pastikan hanya yang memiliki jadwal
             ->get();
 
         foreach ($rentalAssets as $item) {
             $current = \Carbon\Carbon::parse($item->start_at)->startOfDay();
             $end = \Carbon\Carbon::parse($item->end_at)->startOfDay();
 
-            while ($current->lte($end)) {
+            foreach ($item->schedules as $schedule) {
                 $events[] = [
                     'title' => $item->institution->name,
-                    'start' => $current->format('Y-m-d'),
+                    'start' => $schedule->date,
                 ];
-                $current->addDay();
             }
         }
 

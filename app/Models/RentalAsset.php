@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Institution;
 use App\Models\Asset;
 use App\Models\Member;
+use App\Models\EventSchedule;
 
 class RentalAsset extends Model {
     protected $fillable = [
@@ -52,5 +53,13 @@ class RentalAsset extends Model {
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    /**
+     * Get the event schedules associated with the rental asset.
+     */
+    public function schedules()
+    {
+        return $this->hasMany(EventSchedule::class);
     }
 }

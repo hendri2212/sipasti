@@ -60,43 +60,49 @@
                     <small class="text-muted">Perihal</small>
                     <h5 class="fw-light mb-1">{{ $rental->regarding }}</h5>
                 </div>
-                {{-- <small for="daterange" class="text-muted">Periode (Mulai & Selesai)</small> --}}
+                @if($rental->status == 'process' && in_array(auth()->user()->role, ['admin']))
                 <form action="{{ route('rent.update', $rental->id) }}" method="POST" class="flex-fill mb-0" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    {{-- <input
-                        type="text"
-                        id="daterange"
-                        name="daterange"
-                        class="form-control"
-                        placeholder="Pilih tanggal & waktu"
-                        value="{{ old('daterange', optional($rental->start_at)->format('Y-m-d H:i') . ' to ' . optional($rental->end_at)->format('Y-m-d H:i')) }}"
-                    > --}}
-                    
-                    <div class="row g-2 align-items-end mb-2">
-                        <div class="col">
-                            <label for="start_at" class="form-label small text-muted">Mulai</label>
-                            <input
-                                type="datetime-local"
-                                name="start_at"
-                                id="start_at"
-                                class="form-control"
-                                value="{{ old('start_at', optional($rental->start_at)->format('Y-m-d\\TH:i')) }}"
-                                @if($rental->start_at || $rental->status == 'waiting') disabled @endif
-                            >
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Jadwal Penggunaan</label>
+                        <div id="schedule-wrapper">
+                            <div class="row g-2 schedule-row mb-2">
+                                <div class="col-4">
+                                    <input type="date" name="schedules[0][date]" class="form-control" required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="time" name="schedules[0][start_time]" class="form-control" required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="time" name="schedules[0][end_time]" class="form-control" required>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col">
-                            <label for="end_at" class="form-label small text-muted">Selesai</label>
-                            <input
-                                type="datetime-local"
-                                name="end_at"
-                                id="end_at"
-                                class="form-control"
-                                value="{{ old('end_at', optional($rental->end_at)->format('Y-m-d\\TH:i')) }}"
-                                @if($rental->end_at || $rental->status == 'waiting') disabled @endif
-                            >
-                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addScheduleRow()">Tambah Jadwal</button>
                     </div>
+
+                    <script>
+                        let scheduleIndex = 1;
+                        function addScheduleRow() {
+                            const wrapper = document.getElementById('schedule-wrapper');
+                            const row = document.createElement('div');
+                            row.className = 'row g-2 schedule-row mb-2';
+                            row.innerHTML = `
+                                <div class="col-4">
+                                    <input type="date" name="schedules[${scheduleIndex}][date]" class="form-control" required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="time" name="schedules[${scheduleIndex}][start_time]" class="form-control" required>
+                                </div>
+                                <div class="col-4">
+                                    <input type="time" name="schedules[${scheduleIndex}][end_time]" class="form-control" required>
+                                </div>
+                            `;
+                            wrapper.appendChild(row);
+                            scheduleIndex++;
+                        }
+                    </script>
                     
                     {{-- Surat Rekomendasi jika dibutuhkan dan admin --}}
                     @if($rental->recommendation && auth()->user()->role == 'admin')
@@ -112,11 +118,12 @@
                         <div class="d-flex justify-content-end mt-3">
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <button type="submit" class="btn btn-primary">Terima</button>
-                                <a href="{{ route('rent.cancel', $rental->id) }}" class="btn btn-danger">Tolak</a>
+                                <a href="{{ route('rent.reject', $rental->id) }}" class="btn btn-danger">Tolak</a>
                             </div>
                         </div>
                     @endif
                 </form>
+                @endif
                 @if($rental->status == 'waiting' && in_array(auth()->user()->role, ['super_admin']))
                     <div class="d-flex justify-content-end mt-3">
                         {{-- <button class="btn btn-danger flex-fill">Tolak</button> --}}
@@ -142,13 +149,6 @@
     <div class="col-md-6">
         <div class="card bg-white shadow-sm rounded-3 border-0">
             <div class="card-body p-3">
-                {{-- @if($rental->photo)
-                    <img src="{{ asset('storage/' . $rental->photo) }}" 
-                        alt="Scan Surat" 
-                        class="img-fluid">
-                @else
-                    <div class="border rounded p-5 text-muted">Tidak ada foto.</div>
-                @endif --}}
                 @if($rental->photo)
                     @php
                         $extension = pathinfo($rental->photo, PATHINFO_EXTENSION);
@@ -187,14 +187,3 @@
         calendar.render()
     })
 </script>
-{{-- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        flatpickr("#daterange", {
-            mode: "range",          // enable range selection
-            enableTime: true,       // tampilkan pilihan jam
-            dateFormat: "Y-m-d H:i",
-            time_24hr: true,
-            plugins: [new rangePlugin({ input: "#daterange" })]
-        });
-    });
-</script> --}}
