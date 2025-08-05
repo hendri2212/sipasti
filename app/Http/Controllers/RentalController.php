@@ -66,6 +66,7 @@ class RentalController extends Controller {
     }
 
     public function show(RentalAsset $rentalAsset) {
+        $rentalAsset->load('schedules');
         return view('rent.detail', ['rental' => $rentalAsset]);
     }
 

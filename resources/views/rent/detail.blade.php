@@ -60,6 +60,21 @@
                     <small class="text-muted">Perihal</small>
                     <h5 class="fw-light mb-1">{{ $rental->regarding }}</h5>
                 </div>
+                @if($rental->schedules && $rental->schedules->count())
+                    <div class="d-flex flex-column mb-3">
+                        <small class="text-muted">Jadwal Peminjaman</small>
+                        <ul class="mb-0 ps-3">
+                            @foreach($rental->schedules as $schedule)
+                                <li>
+                                    {{ \Carbon\Carbon::parse($schedule->date)->format('d M Y') }},
+                                    {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - 
+                                    {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }} WITA
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                
                 @if($rental->status == 'process' && in_array(auth()->user()->role, ['admin']))
                 <form action="{{ route('rent.update', $rental->id) }}" method="POST" class="flex-fill mb-0" enctype="multipart/form-data">
                     @csrf
