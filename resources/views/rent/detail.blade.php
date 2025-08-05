@@ -63,7 +63,7 @@
                 @if($rental->schedules && $rental->schedules->count())
                     <div class="d-flex flex-column mb-3">
                         <small class="text-muted">Jadwal Peminjaman</small>
-                        <ul class="mb-0 ps-3">
+                        <ul class="mb-0 ps-3" style="max-height: 200px; overflow-y: auto;">
                             @foreach($rental->schedules as $schedule)
                                 <li>
                                     {{ \Carbon\Carbon::parse($schedule->date)->format('d M Y') }},
