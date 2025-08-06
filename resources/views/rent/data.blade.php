@@ -90,10 +90,12 @@
     }
 })();
 </script>
-<a href="{{ url('/rent/form') }}"
-    class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow fab-add d-flex align-items-center justify-content-center"
-    style="width:60px;height:60px;z-index:1050;">
-    <i class="bi bi-plus-lg fs-3"></i>
-    <span class="visually-hidden">Tambah</span>
-</a>
+@if(auth()->user()->role === 'user')
+    <a href="{{ url('/rent/form') }}"
+        class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow fab-add d-flex align-items-center justify-content-center"
+        style="width:60px;height:60px;z-index:1050;">
+        <i class="bi bi-plus-lg fs-3"></i>
+        <span class="visually-hidden">Tambah</span>
+    </a>
+@endif
 @endsection
