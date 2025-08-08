@@ -303,15 +303,32 @@ class RentalController extends Controller {
         $start = $request->get('start_date');
         $end   = $request->get('end_date');
 
-        $query = RentalAsset::with(['institution','asset','member'])
-            ->orderBy('start_at','asc');
+        $query = RentalAsset::with([
+            'institution',
+            'asset',
+            'member',
+            'schedules' => function ($q) use ($start, $end) {
+                // Filter schedules shown in the report (if date range provided)
+                if ($start && $end) {
+                    $q->whereBetween('date', [$start, $end]);
+                }
+                $q->orderBy('date')->orderBy('start_time');
+            }
+        ]);
 
-        if ($start && $end) {
-            $query->whereBetween('start_at', [$start, $end]);
-        }
+        // Only include rentals that actually have schedules (and optionally within range)
+        $query->whereHas('schedules', function ($q) use ($start, $end) {
+            if ($start && $end) {
+                $q->whereBetween('date', [$start, $end]);
+            }
+        });
+
+        // Order the rentals by their earliest schedule date
+        $query->withMin('schedules', 'date')->orderBy('schedules_min_date', 'asc');
 
         $rentalAssets = $query->get();
-        return view('report.data', compact('rentalAssets','start','end'));
+
+        return view('report.data', compact('rentalAssets', 'start', 'end'));
     }
 
     public function destroy(RentalAsset $rentalAsset) {
