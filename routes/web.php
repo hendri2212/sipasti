@@ -7,6 +7,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetUserController;
+use App\Http\Controllers\UserController;
 
 // Hanya guest yang bisa ke login
 Route::middleware('guest')->group(function () {
@@ -41,6 +42,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/institutions', [InstitutionController::class, 'store'])->name('institutions.store');
     Route::get('/assets/data', [AssetController::class, 'index'])->name('assets.data');
+
+    Route::get('/profile', [UserController::class, 'show'])->name('profile');
+    Route::get('/profile/password', [UserController::class, 'edit'])->name('password.edit');
+    Route::put('/profile/password', [UserController::class, 'update'])->name('password.update');
 });
 
 

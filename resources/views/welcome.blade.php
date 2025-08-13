@@ -12,7 +12,6 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
-    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> --}}
     <style>
         .nav-link.active {
             position: relative;
@@ -66,25 +65,43 @@
                                 @endif
                             @endauth
                             {{-- <li class="nav-item"><a class="nav-link" href="#">Users</a></li> --}}
-                            <li class="nav-item ms-md-3">
-                                <a href="{{ route('logout') }}"
-                                   class="btn btn-primary btn-sm px-3 d-md-inline-flex align-items-center"
-                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            <li class="nav-item dropdown ms-md-3">
+                                <a class="nav-link d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img
+                                        src="{{ auth()->user()->avatar_url ?? ('https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name)) }}"
+                                        alt="Avatar"
+                                        class="rounded-circle me-0"
+                                        width="36"
+                                        height="36"
+                                    >
                                 </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                    @csrf
-                                </form>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url('/profile') }}">
+                                            <i class="bi bi-person me-2"></i> Profile
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
                         </ul>
                     </div>
                 </div>
             </nav>
         </header>
         @yield('content')
+        @if (session('status'))
+          <div class="alert alert-success container mt-3">{{ session('status') }}</div>
+        @endif
     </div>
-    {{-- <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/rangePlugin.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 </body>
 
