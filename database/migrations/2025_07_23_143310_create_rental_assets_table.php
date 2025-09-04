@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->date('incoming_letter_date')->nullable(); // Tanggal surat masuk
             $table->boolean('recommendation')->default(false); // Checklist perlu rekomendasi
             $table->string('recommendation_letter')->nullable(); // File scan surat rekomendasi
-            $table->string('regarding')->nullable(); // Perihal
+            $table->text('regarding')->nullable(); // Perihal
             $table->enum('status', ['waiting', 'process', 'finish', 'cancel'])->default('waiting');
             $table->timestamps();
 
