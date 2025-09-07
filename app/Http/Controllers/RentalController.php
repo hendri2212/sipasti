@@ -79,6 +79,14 @@ class RentalController extends Controller {
     }
 
     public function update(Request $request, RentalAsset $rentalAsset) {
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        // Ensure the admin manages this asset (based on pivot table asset_user)
+        if (!$rentalAsset->asset || !$rentalAsset->asset->users()->where('users.id', auth()->id())->exists()) {
+            abort(403, 'Anda tidak berwenang mengelola aset ini.');
+        }
+
         $data = $request->validate([
             'schedules' => 'required|array|min:1',
             'schedules.*.date' => 'required|date',
