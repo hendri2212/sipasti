@@ -92,6 +92,15 @@
                 <form action="{{ route('rent.update', $rental->id) }}" method="POST" class="flex-fill mb-0" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+                    @if ($errors->any())
+                      <div class="alert alert-danger">
+                        <ul>
+                          @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                          @endforeach
+                        </ul>
+                      </div>
+                    @endif
                     <div class="mb-3">
                         <label class="form-label small text-muted">Jadwal Penggunaan</label>
                         <div id="schedule-wrapper">

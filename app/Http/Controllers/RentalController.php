@@ -7,6 +7,8 @@ use App\Models\Institution;
 use App\Models\Asset;
 use App\Models\Member;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -79,71 +81,120 @@ class RentalController extends Controller {
     }
 
     public function update(Request $request, RentalAsset $rentalAsset) {
-        if (!auth()->check() || auth()->user()->role !== 'admin') {
+        // 1) Authorization: allow admin or super_admin
+        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'super_admin'])) {
             abort(403, 'Unauthorized action.');
         }
-        // Ensure the admin manages this asset (based on pivot table asset_user)
-        if (!$rentalAsset->asset || !$rentalAsset->asset->users()->where('users.id', auth()->id())->exists()) {
-            abort(403, 'Anda tidak berwenang mengelola aset ini.');
+        // If not super_admin, ensure the admin manages this asset (based on pivot table asset_user)
+        if (auth()->user()->role !== 'super_admin') {
+            if (!$rentalAsset->asset || !$rentalAsset->asset->users()->where('users.id', auth()->id())->exists()) {
+                abort(403, 'Anda tidak berwenang mengelola aset ini.');
+            }
         }
 
-        $data = $request->validate([
-            'schedules' => 'required|array|min:1',
-            'schedules.*.date' => 'required|date',
-            'schedules.*.start_time' => 'required|date_format:H:i',
-            'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
-            'recommendation_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        // 2) Validate request (explicit per-item checks to avoid wildcard "after" pitfalls)
+        $validator = Validator::make($request->all(), [
+            'schedules' => ['required', 'array', 'min:1'],
+            'recommendation_letter' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 
-        // Hapus jadwal lama dulu (jika diperlukan)
-        $rentalAsset->schedules()->delete();
+        $validator->after(function ($validator) use ($request) {
+            $schedules = $request->input('schedules', []);
+            foreach ($schedules as $i => $sch) {
+                // date
+                if (!isset($sch['date']) || !strtotime($sch['date'])) {
+                    $validator->errors()->add("schedules.$i.date", 'Tanggal tidak valid.');
+                }
+                // start_time: HH:MM
+                if (empty($sch['start_time']) || !preg_match('/^\d{2}:\d{2}$/', $sch['start_time'])) {
+                    $validator->errors()->add("schedules.$i.start_time", 'Jam mulai harus format HH:ii.');
+                }
+                // end_time: HH:MM and after start_time
+                if (empty($sch['end_time']) || !preg_match('/^\d{2}:\d{2}$/', $sch['end_time'])) {
+                    $validator->errors()->add("schedules.$i.end_time", 'Jam selesai harus format HH:ii.');
+                } else {
+                    if (!empty($sch['start_time'])) {
+                        $start = strtotime($sch['start_time']);
+                        $end   = strtotime($sch['end_time']);
+                        if ($end !== false && $start !== false && $end <= $start) {
+                            $validator->errors()->add("schedules.$i.end_time", 'Jam selesai harus setelah jam mulai.');
+                        }
+                    }
+                }
+            }
+        });
 
-        // Simpan semua jadwal baru
-        foreach ($data['schedules'] as $schedule) {
-            $rentalAsset->schedules()->create($schedule);
-        }
+        $validator->validate();
 
-        // Update status
-        $rentalAsset->update(['status' => 'finish']);
+        // 3) Atomic write: replace schedules + update status (and optional recommendation letter) in a transaction
+        DB::transaction(function () use ($request, $rentalAsset) {
+            // Hapus jadwal lama
+            $rentalAsset->schedules()->delete();
 
-        // Jika ada surat rekomendasi
-        if ($rentalAsset->recommendation && $request->hasFile('recommendation_letter')) {
-            $path = $request->file('recommendation_letter')->store('recommendation', 'public');
-            $rentalAsset->update(['recommendation_letter' => $path]);
-        }
+            // Simpan jadwal baru
+            foreach ($request->input('schedules', []) as $schedule) {
+                $rentalAsset->schedules()->create([
+                    'date'       => $schedule['date'],
+                    'start_time' => $schedule['start_time'],
+                    'end_time'   => $schedule['end_time'],
+                ]);
+            }
 
-        // Kirim notifikasi WA
-        $asset = Asset::find($rentalAsset->asset_id);
-        $member = Member::find($rentalAsset->member_id);
+            $updateData = ['status' => 'finish'];
+
+            // Jika ada surat rekomendasi
+            if ($rentalAsset->recommendation && $request->hasFile('recommendation_letter')) {
+                $path = $request->file('recommendation_letter')->store('recommendation', 'public');
+                $updateData['recommendation_letter'] = $path;
+            }
+
+            $rentalAsset->update($updateData);
+        });
+
+        // 4) Refresh relations for notification
+        $rentalAsset->load('schedules', 'asset', 'member');
         \Illuminate\Support\Carbon::setLocale('id');
 
-        $firstSchedule = $rentalAsset->schedules()->orderBy('date')->first();
-        $lastSchedule = $rentalAsset->schedules()->orderBy('date', 'desc')->first();
+        $firstSchedule = $rentalAsset->schedules->sortBy('date')->first();
+        $lastSchedule  = $rentalAsset->schedules->sortByDesc('date')->first();
 
-        $formattedStart = \Carbon\Carbon::parse($firstSchedule->date)->translatedFormat('d F Y') . ' jam ' . substr($firstSchedule->start_time, 0, 5) . ' WITA';
-        $formattedEnd = \Carbon\Carbon::parse($lastSchedule->date)->translatedFormat('d F Y') . ' jam ' . substr($lastSchedule->end_time, 0, 5) . ' WITA';
-        $formattedRentalDate = optional($rentalAsset->letter_date)->format('d-m-Y');
+        $formattedStart = $firstSchedule
+            ? \Carbon\Carbon::parse($firstSchedule->date)->translatedFormat('d F Y') . ' jam ' . substr($firstSchedule->start_time, 0, 5) . ' WITA'
+            : '-';
+        $formattedEnd = $lastSchedule
+            ? \Carbon\Carbon::parse($lastSchedule->date)->translatedFormat('d F Y') . ' jam ' . substr($lastSchedule->end_time, 0, 5) . ' WITA'
+            : '-';
+        $formattedRentalDate = $rentalAsset->letter_date
+            ? \Carbon\Carbon::parse($rentalAsset->letter_date)->format('d-m-Y')
+            : '-';
 
-        $message = "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
-            . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
-            . "Permohonan Anda untuk penggunaan *{$asset->name}* telah disetujui oleh DISPARPORA Kotabaru.\n\n"
-            . "*Nomor Surat:* {$rentalAsset->letter_number}\n"
-            . "*Tanggal Surat:* {$formattedRentalDate}\n"
-            . "*Tanggal Penggunaan:* {$formattedStart}\n"
-            . "*Tanggal Selesai:* {$formattedEnd}\n\n";
+        $asset  = $rentalAsset->asset;
+        $member = $rentalAsset->member;
 
-        if ($rentalAsset->recommendation_letter) {
-            $fileUrl = asset('storage/' . $rentalAsset->recommendation_letter);
-            $message .= "*Surat Rekomendasi:* {$fileUrl}\n\n";
+        // 5) Kirim notifikasi WA (aman walau jadwal kosong)
+        if ($member && $asset) {
+            $message = "Aplikasi *SIPASTI* (Sistem Informasi Peminjaman Aset)\n\n"
+                . "Yth. Bapak/Ibu *{$member->name}*,\n\n"
+                . "Permohonan Anda untuk penggunaan *{$asset->name}* telah disetujui oleh DISPARPORA Kotabaru.\n\n"
+                . "*Nomor Surat:* {$rentalAsset->letter_number}\n"
+                . "*Tanggal Surat:* {$formattedRentalDate}\n"
+                . "*Tanggal Penggunaan:* {$formattedStart}\n"
+                . "*Tanggal Selesai:* {$formattedEnd}\n\n";
+
+            if ($rentalAsset->recommendation_letter) {
+                $fileUrl = asset('storage/' . $rentalAsset->recommendation_letter);
+                $message .= "*Surat Rekomendasi:* {$fileUrl}\n\n";
+            }
+
+            $message .= "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
+
+            Http::post(
+                config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
+                ['to' => preg_replace('/^0/', '62', $member->phone), 'message' => $message]
+            );
         }
 
-        $message .= "Terima kasih.\n\n_Disparpora Kotabaru_\nTransformasi Komunikasi — Mudah, Cepat, Keren.";
-
-        Http::post(
-            config('services.whatsapp.endpoint') ?? 'https://wabot.tukarjual.com/send',
-            ['to' => preg_replace('/^0/', '62', $member->phone), 'message' => $message]
-        );
-
+        // 6) Selesai
         return redirect()
             ->route('rent.show', $rentalAsset)
             ->with('success', 'Jadwal penggunaan dan status berhasil diperbarui.');
